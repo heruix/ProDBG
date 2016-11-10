@@ -24,6 +24,7 @@ local mac_opts = {
     "-Wno-weak-vtables",
     "-Wno-format-nonliteral",
     "-Wno-non-virtual-dtor",
+    "-Wno-undefined-reinterpret-cast",
     "-DOBJECT_DIR=\\\"$(OBJECTDIR)\\\"",
     { "-O0", "-g"; Config = "*-*-debug" },
     { "-O3", "-g"; Config = "*-*-release" },
@@ -31,6 +32,8 @@ local mac_opts = {
 
 local macosx = {
     Env = {
+    	QT5="/Users/danielcollin/code/other/Qt/5.7/clang_64";
+
         RUST_CARGO_OPTS = {
             { "test"; Config = "*-*-*-test" },
         },
@@ -161,7 +164,7 @@ local win64 = {
 Build {
 
     Passes = {
-        BuildTools = { Name="Build Tools", BuildOrder = 1 },
+        BuildTools = { Name = "Build Tools", BuildOrder = 1 },
         GenerateSources = { Name="Generate sources", BuildOrder = 2 },
     },
 

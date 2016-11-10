@@ -192,7 +192,7 @@ RustProgram {
 
     Depends = { "lua", "remote_api", "stb", "bgfx_native", "bgfx", "ui",
     			"imgui", "tinyxml2", "capstone", "renderer", "scintilla",
-    			"imgui_sys", "core", "viewdock", "settings", "prodbg_api",
+    			"imgui_sys", "core", "viewdock", "settings", "prodbg_api", "wrui_qt",
     			"settings", "project", "serde_macros", "number_view", "char_editor", "combo" },
 }
 

@@ -3,6 +3,36 @@ require "tundra.syntax.osx-bundle"
 require "tundra.path"
 require "tundra.util"
 
+-- Used to generate the moc cpp files as needed for .h that uses Q_OBJECT for QtTool(s)
+
+DefRule {
+	Name = "MocGeneration",
+	Pass = "GenerateSources",
+	Command = "$(QT5)/bin/moc --no-notes $(<) -o $(@)",
+
+	Blueprint = {
+		Source = { Required = true, Type = "string", Help = "Input filename", },
+		OutName = { Required = true, Type = "string", Help = "Output filename", },
+	},
+
+	Setup = function (env, data)
+		return {
+			InputFiles    = { data.Source },
+			OutputFiles   = { "$(OBJECTDIR)/_generated/" .. data.OutName },
+		}
+	end,
+}
+
+-- Used to send a list of header files
+
+local function MocGenerationMulti(sources)
+ local result = {}
+ for _, src in ipairs(tundra.util.flatten(sources)) do
+   result[#result + 1] = MocGeneration { Source = src, OutName = tundra.path.get_filename_base(src) .. "_moc.cpp" }
+ end
+ return result
+end
+
 -----------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------- EXTERNAL LIBS ---------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
@@ -37,6 +67,39 @@ StaticLibrary {
     },
 
 	IdeGenerationHints = { Msvc = { SolutionFolder = "External" } },
+}
+
+-----------------------------------------------------------------------------------------------------------------------
+
+StaticLibrary {
+    Name = "wrui_qt",
+
+    Env = {
+        CXXOPTS = {
+			{
+              "-isystem $(QT5)/lib/QtWidgets.framework/Headers",
+              "-isystem $(QT5)/lib/QtCore.framework/Headers",
+              "-F$(QT5)/lib"; Config = "macosx-*-*" },
+        },
+
+        FRAMEWORKS = { "$(QT5)/lib/QtCore", "$(QT5)/lib/QtWidgets" },
+    },
+
+    Sources = {
+		MocGenerationMulti {
+			Glob {
+				Dir = "src/native/external/wrui/src/qt",
+				Extensions = { ".h" }
+			},
+		},
+
+		Sources = {
+			Glob {
+				Dir = "src/native/external/wrui/src/qt",
+				Extensions = { ".cpp" }
+			},
+		},
+    },
 }
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -77,6 +140,28 @@ StaticLibrary {
 
 StaticLibrary {
     Name = "tinyxml2",
+
+    Env = {
+        CXXOPTS = {
+        	{ "-Wno-everything"; Config = "macosx-*-*" },
+        	{ "/wd4267", "/wd4706", "/wd4244", "/wd4701", "/wd4334", "/wd4127"; Config = "win64-*-*" },
+        },
+    },
+
+    Sources = {
+        Glob {
+            Dir = "src/native/external/tinyxml2",
+            Extensions = { ".cpp", ".h" },
+        },
+    },
+
+	IdeGenerationHints = { Msvc = { SolutionFolder = "External" } },
+}
+
+-----------------------------------------------------------------------------------------------------------------------
+
+StaticLibrary {
+    Name = "wrui",
 
     Env = {
         CXXOPTS = {

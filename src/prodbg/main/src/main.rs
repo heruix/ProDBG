@@ -1,35 +1,13 @@
 extern crate core;
-extern crate minifb;
 extern crate prodbg_api;
-extern crate bgfx;
 extern crate imgui_sys;
 extern crate settings;
-extern crate renderer;
 extern crate project;
 #[macro_use]
 extern crate serde_macros;
 
-
-pub mod windows;
-pub mod menu;
-pub mod statusbar;
-mod dir_searcher;
-
-// use renderer::Renderer;
-use core::session::Sessions;
-use windows::Windows;
-use settings::Settings;
-use core::{DynamicReload, Search};
-use core::view_plugins::ViewPlugins;
-use core::backend_plugin::BackendPlugins;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::time::Duration;
-use project::Project;
-
-use core::plugins::*;
-
 fn main() {
+	/*
     match dir_searcher::find_working_dir() {
         Some(wd) => std::env::set_current_dir(wd).unwrap(),
         None => {
@@ -95,6 +73,7 @@ fn main() {
         // TODO: Proper config and sleep timings
         std::thread::sleep(Duration::from_millis(5));
     }
+    */
 }
 
 // dummy
