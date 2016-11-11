@@ -12,6 +12,7 @@ nfd = { git = "https://github.com/emoon/nfd-rs.git" }
 viewdock = { path = "../viewdock" }
 bgfx = { path = "../bgfx-rs" }
 core = { path = "../core" }
+wrui = { path = "../wrui_rust" }
 renderer = { path = "../renderer" }
 settings = { path = "../../crates/settings" }
 project = { path = "../../crates/project" }
