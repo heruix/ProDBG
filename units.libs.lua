@@ -93,11 +93,9 @@ StaticLibrary {
 			},
 		},
 
-		Sources = {
-			Glob {
-				Dir = "src/native/external/wrui/src/qt",
-				Extensions = { ".cpp" }
-			},
+		Glob {
+			Dir = "src/native/external/wrui/src/qt",
+			Extensions = { ".cpp" }
 		},
     },
 }

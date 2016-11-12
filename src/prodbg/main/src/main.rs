@@ -3,10 +3,21 @@ extern crate prodbg_api;
 extern crate imgui_sys;
 extern crate settings;
 extern crate project;
-#[macro_use]
-extern crate serde_macros;
+extern crate wrui;
+
+use wrui::Ui;
 
 fn main() {
+
+    let ui = Ui::new_default();
+
+    let app = ui.application_create();
+
+    let _button = ui.push_button_create("foo!!", None); 
+
+    app.run();
+
+
 	/*
     match dir_searcher::find_working_dir() {
         Some(wd) => std::env::set_current_dir(wd).unwrap(),

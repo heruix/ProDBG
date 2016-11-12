@@ -104,7 +104,7 @@ pub struct Wrui {
     pub api_version: u64,
     pub application_create: extern "C" fn() -> *mut GUApplication,
     pub window_create: unsafe extern "C" fn(parent: *mut GUWidget) -> *mut GUWindow,
-    pub push_button_create: unsafe extern "C" fn(label: *const c_char, parent: *mut GUWidget) -> *mut GUPushButton,
+    pub push_button_create: unsafe extern "C" fn(label: *const c_char, parent: *const GUWidget) -> *mut GUPushButton,
     pub object_funcs: *mut GUObjectFuncs,
     pub widget_funcs: *mut GUWidgetFuncs,
     pub main_window_funcs: *mut GUMainWindowFuncs,
