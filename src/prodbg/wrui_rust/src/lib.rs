@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::ffi::CString;
 use std::ptr;
 use std::os::raw::{c_void};
