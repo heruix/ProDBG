@@ -62,7 +62,7 @@ impl Ui {
 }
 
 pub struct Widget {
-    widget: *mut ffi::GUWidget,
+    _widget: *mut ffi::GUWidget,
 }
 
 ///

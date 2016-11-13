@@ -98,6 +98,7 @@ typedef struct Wrui {
 	GUApplication* (*application_create)();
 	GUWindow* (*window_create)(GUWidget* parent);
 	GUPushButton* (*push_button_create)(const char* label, GUWidget* parent);
+	GUMainWindow* (*main_window_create)(const char* title);
 
 	GUObjectFuncs* object_funcs;
 	GUWidgetFuncs* widget_funcs;

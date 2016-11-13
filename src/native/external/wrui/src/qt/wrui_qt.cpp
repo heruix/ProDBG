@@ -3,6 +3,7 @@
 #include "widget_private.h"
 #include <QApplication>
 #include <QPushButton>
+#include <QMainWindow>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -85,6 +86,22 @@ static GUPushButton* push_button_create(const char* label, GUWidget* parent) {
 	return button;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static GUMainWindow* main_window_create(const char* title) {
+	QMainWindow* qt_win = new QMainWindow();
+	qt_win->setWindowTitle(title);
+
+	// TODO: Smarter allocator than just using new all the time
+
+	GUMainWindow* win = new GUMainWindow;
+	win->base = new GUWidget;
+
+	widget_setup(win->base, (void*) static_cast<QObject*>(qt_win));
+
+	return win; 
+}
+
 extern GUDockWidgetFuncs g_dockWidgetFuncs;
 extern GUMainWindowFuncs g_mainWindowFuncs;
 
@@ -98,6 +115,7 @@ static Wrui s_wrui = {
 	application_create,
 	0,
 	push_button_create,
+	main_window_create,
 
 	// funcs
 

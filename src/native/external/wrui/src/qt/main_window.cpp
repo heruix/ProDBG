@@ -33,5 +33,3 @@ struct GUMainWindowFuncs g_mainWindowFuncs = {
 	add_dock_widget,
 };
 
-
-
