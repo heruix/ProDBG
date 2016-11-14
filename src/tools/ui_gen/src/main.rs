@@ -1,5 +1,6 @@
 extern crate clang;
 
+pub mod data;
 mod rust_ffi_gen;
 
 use clang::*;
@@ -24,6 +25,10 @@ fn main() {
         name.find("__").is_none() &&
         name.find("_opaque").is_none()
     }).collect::<Vec<_>>();
+
+    let t = data::build_data(&structs);
+
+    println!("{:?}", t);
 
 	if let Err(err) = rust_ffi_gen::generate_ffi_bindings(RUST_FFI_FILE, &structs) {
 		panic!("Unable to generate {} err {:?}", RUST_FFI_FILE, err);
