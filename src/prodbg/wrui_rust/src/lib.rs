@@ -14,7 +14,7 @@ pub struct Ui {
 impl Ui {
 	pub fn new(wrui: *const ffi::Wrui) -> Ui {
 		Ui {
-			wrui: wrui, 
+			wrui: wrui,
 		}
 	}
 
@@ -64,7 +64,7 @@ impl Ui {
 }
 
 pub struct Widget {
-    _widget: *mut ffi::GUWidget,
+    _widget: *const ffi::GUWidget,
 }
 
 ///
@@ -72,7 +72,7 @@ pub struct Widget {
 ///
 
 pub struct Application {
-    funcs: *mut ffi::GUApplicationFuncs,
+    funcs: *const ffi::GUApplicationFuncs,
     app: *const ffi::GUApplication,
 }
 
@@ -89,7 +89,7 @@ impl Application {
 ///
 
 pub struct PushButton {
-    funcs: *mut ffi::GUPushButtonFuncs,
+    funcs: *const ffi::GUPushButtonFuncs,
     widget: *const ffi::GUPushButton,
 }
 

@@ -6,7 +6,7 @@ extern GUMainWindowFuncs g_mainWindowFuncs;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void add_dock_widget(GUMainWindow* win, GUDockingArea area, struct GUDockWidget* w) {
+static void add_dock_widget(GUMainWindow* win, uint32_t area, struct GUDockWidget* w) {
 	QMainWindow* main_win = (QMainWindow*)win->base->object->p;
 	QDockWidget* widget = (QDockWidget*)w->base->object->p;
 

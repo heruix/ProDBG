@@ -16,7 +16,7 @@ static struct GUDockWidget* create(struct GUWidget* parent) {
 		qdock = new QDockWidget(nullptr);
 
 	GUDockWidget* t = new GUDockWidget;
-	t->priv = 0;
+	t->privd = 0;
 
 	widget_setup(t->base, (void*) qdock);
 
@@ -46,14 +46,14 @@ static void set_floating(GUDockWidget* w, bool state) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 static void set_widget(GUDockWidget* dock, GUWidget* widget) {
-	dock->priv = (void*)widget;
+	dock->privd = (void*)widget;
 	((QDockWidget*)dock->base->object->p)->setWidget((QWidget*)widget->object->p);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 static struct GUWidget* widget(GUDockWidget* w) {
-	return (GUWidget*)w->priv;
+	return (GUWidget*)w->privd;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
