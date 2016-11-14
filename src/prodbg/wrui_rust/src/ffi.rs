@@ -87,5 +87,4 @@ pub struct Wrui {
 
 extern "C" {
     pub fn wrui_get() -> *mut Wrui;
-
 }
