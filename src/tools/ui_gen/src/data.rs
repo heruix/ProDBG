@@ -2,32 +2,28 @@ extern crate clang;
 
 #[derive(Debug)]
 pub struct Variable {
-	pub c_type: String,
-	pub rust_type: String,
-}
-
-#[derive(Debug)]
-pub struct Parameter {
-	pub name: String,
-	pub var: Variable,
+    pub name: String,
+    pub c_type: String,
+    pub rust_type: String,
 }
 
 #[derive(Debug)]
 pub struct FuncPtr {
-	pub function_args: Vec<Parameter>,
-	pub return_val: Option<Variable>,
+    pub name: String,
+    pub function_args: Vec<Variable>,
+    pub return_val: Option<Variable>,
 }
 
 #[derive(Debug)]
 pub enum StructEntry {
-	Var(Variable),
-	FunctionPtr(FuncPtr),
+    Var(Variable),
+    FunctionPtr(FuncPtr),
 }
 
 #[derive(Debug)]
 pub struct Struct {
-	pub name: String,
-	pub entries: Vec<StructEntry>,
+    pub name: String,
+    pub entries: Vec<StructEntry>,
 }
 
 ///
@@ -81,14 +77,15 @@ fn map_c_type_to_rust(name: &String) -> String {
 ///
 fn generate_var(var: &clang::Entity) -> StructEntry {
     let t = var.get_type().unwrap();
-	let display_name = t.get_display_name();
+    let display_name = t.get_display_name();
 
-	let var = Variable {
-		c_type: display_name.to_owned(),
-		rust_type: map_c_type_to_rust(&display_name),
-	};
+    let var = Variable {
+        name: var.get_display_name().unwrap().to_owned(),
+        c_type: display_name.to_owned(),
+        rust_type: map_c_type_to_rust(&display_name),
+    };
 
-	StructEntry::Var(var)
+    StructEntry::Var(var)
 }
 
 ///
@@ -98,10 +95,11 @@ fn generate_function_ptr(var: &clang::Entity) -> StructEntry {
     let t = var.get_type().unwrap();
     let display_name = t.get_display_name();
 
-	let mut func_ptr = FuncPtr {
-		function_args: Vec::new(),
-		return_val: None,
-	};
+    let mut func_ptr = FuncPtr {
+        name: var.get_display_name().unwrap().to_owned(),
+        function_args: Vec::new(),
+        return_val: None,
+    };
 
     // handle the return type
 
@@ -109,35 +107,34 @@ fn generate_function_ptr(var: &clang::Entity) -> StructEntry {
     let ret_type = &display_name[..type_end];
 
     if ret_type != "void " {
-    	func_ptr.return_val = Some(Variable {
-			c_type: ret_type.to_owned(),
-			rust_type: map_c_type_to_rust(&ret_type.to_owned()),
-		});
-	}
+        func_ptr.return_val = Some(Variable {
+            name: "".to_owned(),
+            c_type: ret_type.to_owned(),
+            rust_type: map_c_type_to_rust(&ret_type.to_owned()),
+        });
+    }
 
     for c in var.get_children().iter() {
         let t = c.get_type().unwrap();
 
         if c.get_kind() == clang::EntityKind::TypeRef {
-        	continue;
+            continue;
         }
 
-        let param = Parameter {
-			name: c.get_display_name().unwrap().to_owned(),
-			var: Variable {
-				c_type: t.get_display_name(),
-				rust_type: map_c_type_to_rust(&t.get_display_name()),
-			}
+        let param = Variable {
+            name: c.get_display_name().unwrap().to_owned(),
+            c_type: t.get_display_name(),
+            rust_type: map_c_type_to_rust(&t.get_display_name()),
         };
 
         func_ptr.function_args.push(param);
     }
 
-	StructEntry::FunctionPtr(func_ptr)
+    StructEntry::FunctionPtr(func_ptr)
 }
 
 pub fn build_data(structs: &Vec<clang::Entity>) -> Vec<Struct> {
-	let mut struct_entries = Vec::new();
+    let mut struct_entries = Vec::new();
 
     for struct_ in structs {
         if struct_.get_children().len() == 0 {
@@ -145,12 +142,12 @@ pub fn build_data(structs: &Vec<clang::Entity>) -> Vec<Struct> {
         }
 
         let mut struct_data = Struct {
-        	name: struct_.get_name().unwrap().to_owned(),
-        	entries: Vec::new(),
+            name: struct_.get_name().unwrap().to_owned(),
+            entries: Vec::new(),
         };
 
         for field in struct_.get_children() {
-            //let name = field.get_name().unwrap();
+            // let name = field.get_name().unwrap();
             let t = field.get_type().unwrap();
 
             if is_type_function_ptr(&t) {
@@ -160,9 +157,8 @@ pub fn build_data(structs: &Vec<clang::Entity>) -> Vec<Struct> {
             }
         }
 
-		struct_entries.push(struct_data);
+        struct_entries.push(struct_data);
     }
 
-	struct_entries
+    struct_entries
 }
-

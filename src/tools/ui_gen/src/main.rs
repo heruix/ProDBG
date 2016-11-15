@@ -19,18 +19,19 @@ fn main() {
     let tu = index.parser(INPUT_HEADER).parse().unwrap();
 
     // Get the structs in this translation unit also remove some stuff we don't need
-    let structs = tu.get_entity().get_children().into_iter().filter(|e| {
-    	let name = e.get_type().unwrap().get_display_name();
-        e.get_kind() == EntityKind::StructDecl &&
-        name.find("__").is_none() &&
-        name.find("_opaque").is_none()
-    }).collect::<Vec<_>>();
+    let structs = tu.get_entity()
+        .get_children()
+        .into_iter()
+        .filter(|e| {
+            let name = e.get_type().unwrap().get_display_name();
+            e.get_kind() == EntityKind::StructDecl && name.find("__").is_none() &&
+            name.find("_opaque").is_none()
+        })
+        .collect::<Vec<_>>();
 
-    let t = data::build_data(&structs);
+    let structs = data::build_data(&structs);
 
-    println!("{:?}", t);
-
-	if let Err(err) = rust_ffi_gen::generate_ffi_bindings(RUST_FFI_FILE, &structs) {
-		panic!("Unable to generate {} err {:?}", RUST_FFI_FILE, err);
-	}
+    if let Err(err) = rust_ffi_gen::generate_ffi_bindings(RUST_FFI_FILE, &structs) {
+        panic!("Unable to generate {} err {:?}", RUST_FFI_FILE, err);
+    }
 }
