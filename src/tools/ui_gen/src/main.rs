@@ -14,6 +14,7 @@ use clang::*;
 static INPUT_HEADER: &'static str = "../../native/external/wrui/include/wrui.h";
 static RUST_FFI_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/ffi_gen.rs";
 static TRAITS_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/traits_gen.rs";
+static WIDGETS_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/widgets.rs";
 
 struct MatchName {
 	c_name: &'static str,
@@ -42,29 +43,15 @@ pub fn generate_traits(filename: &str, structs: &Vec<Struct>) -> io::Result<()> 
         	for entry in &struct_.entries {
         		match entry {
 					&StructEntry::FunctionPtr(ref func_ptr) => {
-						f.write_fmt(format_args!("    fn {}(&mut self", func_ptr.name))?;
+                        f.write_fmt(format_args!("    fn {}(", func_ptr.name))?;
 
-						let arg_count = func_ptr.function_args.len();
-
-						for (i, arg) in func_ptr.function_args.iter().enumerate() {
-							// always skip first arg in trait (as its the C object)
-							if i == 0 {
-								f.write_all(b", ")?;
-								continue;
-							}
-
-							f.write_fmt(format_args!("{}: {}", arg.name, arg.rust_type))?;
-
-							if i != arg_count - 1 {
-								f.write_all(b", ")?;
-							}
-						}
-
-						f.write_all(b")")?;
-
-						if let Some(ref ret_var) = func_ptr.return_val {
-							f.write_fmt(format_args!(" -> {}", ret_var.rust_type))?;
-						}
+                        func_ptr.write_func_def(&mut f, |index, arg| {
+                            if index == 0 {
+                                ("&mut self".to_owned(), "".to_owned())
+                            } else {
+                                (arg.name.to_owned(), arg.rust_type.to_owned())
+                            }
+                        })?;
 
 						f.write_all(b",\n")?;
 					}

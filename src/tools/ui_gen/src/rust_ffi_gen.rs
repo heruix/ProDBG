@@ -22,21 +22,9 @@ pub fn generate_ffi_bindings(filename: &str, structs: &Vec<Struct>) -> io::Resul
                 &StructEntry::FunctionPtr(ref func_ptr) => {
                     f.write_fmt(format_args!("    pub {}: extern \"C\" fn(", func_ptr.name))?;
 
-                    let arg_count = func_ptr.function_args.len();
-
-                    for (i, arg) in func_ptr.function_args.iter().enumerate() {
-                        f.write_fmt(format_args!("{}: {}", arg.name, arg.rust_type))?;
-
-                        if i != arg_count - 1 {
-                            f.write_all(b", ")?;
-                        }
-                    }
-
-                    f.write_all(b")")?;
-
-                    if let Some(ref ret_var) = func_ptr.return_val {
-                        f.write_fmt(format_args!(" -> {}", ret_var.rust_type))?;
-                    }
+                    func_ptr.write_func_def(&mut f, |_, arg| {
+                        (arg.name.to_owned(), arg.rust_type.to_owned())
+                    })?;
 
                     f.write_all(b",\n")?;
                 }
