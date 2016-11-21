@@ -2,8 +2,6 @@ use std::os::raw::{c_void, c_char};
 
 #[repr(C)]
 pub struct GUDockWidgetFuncs {
-    pub create: extern "C" fn(parent: *const GUWidget) -> *const GUDockWidget,
-    pub create_title: extern "C" fn(name: *const c_char, parent: *const GUWidget) -> *const GUDockWidget,
     pub is_floating: extern "C" fn(dock_widget: *const GUDockWidget) -> bool,
     pub set_floating: extern "C" fn(dock_widget: *const GUDockWidget, floating: bool),
     pub set_widget: extern "C" fn(dock_widget: *const GUDockWidget, widget: *const GUWidget),
@@ -76,8 +74,9 @@ pub struct Wrui {
     pub api_version: u64,
     pub application_create: extern "C" fn() -> *const GUApplication,
     pub window_create: extern "C" fn(parent: *const GUWidget) -> *const GUWindow,
-    pub push_button_create: extern "C" fn(label: *const c_char, parent: *const GUWidget) -> *const GUPushButton,
-    pub main_window_create: extern "C" fn(title: *const c_char) -> *const GUMainWindow,
+    pub push_button_create: extern "C" fn(parent: *const GUWidget) -> *const GUPushButton,
+    pub main_window_create: extern "C" fn(parent: *const GUWidget) -> *const GUMainWindow,
+    pub dock_widget_create: extern "C" fn(parent: *const GUWidget) -> *const GUDockWidget,
     pub object_funcs: *const GUObjectFuncs,
     pub widget_funcs: *const GUWidgetFuncs,
     pub main_window_funcs: *const GUMainWindowFuncs,
