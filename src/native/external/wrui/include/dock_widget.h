@@ -12,8 +12,6 @@ struct GUWidget;
 struct GUDockWidget;
 
 typedef struct GUDockWidgetFuncs {
-	struct GUDockWidget* (*create)(struct GUWidget* parent);
-	struct GUDockWidget* (*create_title)(const char* name, struct GUWidget* parent);
 	bool (*is_floating)(struct GUDockWidget* dock_widget);
 	void (*set_floating)(struct GUDockWidget* dock_widget, bool floating);
 	void (*set_widget)(struct GUDockWidget* dock_widget, struct GUWidget* widget);
