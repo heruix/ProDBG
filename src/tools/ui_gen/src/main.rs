@@ -68,21 +68,73 @@ pub fn generate_traits(filename: &str, structs: &Vec<Struct>) -> io::Result<()> 
 }
 
 ///
+/// 2. Check if function is create style function
+///
+fn is_create_func(func: &FuncPtr) -> bool {
+	if !func.name.find("_create") {
+		return false;
+	}
+
+	if let Some(ret_value) = func.return_val {
+		true
+	} else {
+		false
+	}
+}
+
+///
+///
+///
+fn find_funcs_struct(func: &FuncPtr, structs: &Vec<Struct>) -> &Struct {
+	if let Some(index) = func.name.find("_create") {
+		structs.find(|&e| { e.name == &fun.name[..index] }).unwrap()
+	}
+
+	panic!("meh");
+}
+
+///
+/// 3. Find name_funcs that maps to 2.
+///
+fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::Result<()> {
+	let type_name = func.return_val.unwrap().name[7..].to_owned();
+	let funcs_struct = find_funcs_struct(func, structs);
+
+	f.write_fmt(format_args!("pub {} {{\n", &func.name[2..]))?;
+	f.write_fmt(format_args!("    funcs: *const {}", funcs_struct.name))?;
+	f.write_fmt(format_args!("    obj: *const {}", type_name))?;
+	f.write_all(b"}\n\n")?;
+
+	f.write_fmt(format_args!("impl {} {{\n", &func.name[2..]))?;
+
+	f.write_all(b"}\n\n")?;
+}
+
+///
 /// This functions generates "Real" Rust bindings (using the FFI wrapper)
 ///
 /// It's done in this way:
 ///
 /// 1. Find the the Wrui struct.
 /// 2. Find a name_create function that returns GUX* inside the UI struct
-///    Notice that GUWidget is special. It's "inherited" as trait for all 
-///    structs that has GUWidget* base as variable.
-/// 3. Find name_funcs that maps to 2. 
-/// 4. Generate struct X which uses functions in name_funcs and wraps GUX object 
+/// 3. Find name_funcs that maps to 2.
+/// 4. Generate struct X which uses functions in name_funcs and wraps GUX object
 /// 5. If struct has GUWidget* base also generate Widget trait impl
 ///
 fn generate_rust_binding(filename: &str, structs: &Vec<Struct>) -> io::Result<()> {
+	let wrui_struct = structs.find(|&e| { e.name == "Wrui" } ).unwrap();
+
+	for entry in wrui_struct.entries {
+		match entry {
+			&StructEntry::FunctionPtr(ref func_ptr) => {
+				if !is_crate_func(func_ptr) {
+					continue;
+				}
 
 
+			}
+		}
+	}
 }
 
 fn main() {
