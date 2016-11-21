@@ -107,6 +107,16 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 
 	f.write_fmt(format_args!("impl {} {{\n", &func.name[2..]))?;
 
+	for entry in funcs_strucs.entries {
+		func_ptr.write_func_def(&mut f, |index, arg| {
+			if index == 0 {
+				("&mut self".to_owned(), "".to_owned())
+			} else {
+				(arg.name.to_owned(), arg.rust_type.to_owned())
+			}
+		})?;
+	}
+
 	f.write_all(b"}\n\n")?;
 }
 
