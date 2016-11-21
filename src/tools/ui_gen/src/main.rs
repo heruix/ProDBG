@@ -67,6 +67,24 @@ pub fn generate_traits(filename: &str, structs: &Vec<Struct>) -> io::Result<()> 
 	Ok(())
 }
 
+///
+/// This functions generates "Real" Rust bindings (using the FFI wrapper)
+///
+/// It's done in this way:
+///
+/// 1. Find the the Wrui struct.
+/// 2. Find a name_create function that returns GUX* inside the UI struct
+///    Notice that GUWidget is special. It's "inherited" as trait for all 
+///    structs that has GUWidget* base as variable.
+/// 3. Find name_funcs that maps to 2. 
+/// 4. Generate struct X which uses functions in name_funcs and wraps GUX object 
+/// 5. If struct has GUWidget* base also generate Widget trait impl
+///
+fn generate_rust_binding(filename: &str, structs: &Vec<Struct>) -> io::Result<()> {
+
+
+}
+
 fn main() {
     // Acquire an instance of `Clang`
     let clang = Clang::new().unwrap();
