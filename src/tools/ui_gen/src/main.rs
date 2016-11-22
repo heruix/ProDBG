@@ -71,33 +71,26 @@ pub fn generate_traits(filename: &str, structs: &Vec<Struct>) -> io::Result<()> 
 /// 2. Check if function is create style function
 ///
 fn is_create_func(func: &FuncPtr) -> bool {
-	if !func.name.find("_create") {
+	if func.name.find("_create").is_none() {
 		return false;
 	}
 
-	if let Some(ret_value) = func.return_val {
-		true
-	} else {
-		false
-	}
+	func.return_val.is_some()
 }
 
 ///
 ///
 ///
-fn find_funcs_struct(func: &FuncPtr, structs: &Vec<Struct>) -> &Struct {
-	if let Some(index) = func.name.find("_create") {
-		structs.find(|&e| { e.name == &fun.name[..index] }).unwrap()
-	}
-
-	panic!("meh");
+fn find_funcs_struct<'a>(func: &FuncPtr, structs: &'a Vec<Struct>) -> &'a Struct {
+	let index = func.name.find("_create").unwrap();
+	structs.iter().find(|&e| { e.name == &func.name[..index] }).unwrap()
 }
 
 ///
 /// 3. Find name_funcs that maps to 2.
 ///
 fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::Result<()> {
-	let type_name = func.return_val.unwrap().name[7..].to_owned();
+	let type_name = func.return_val.as_ref().unwrap().name[7..].to_owned();
 	let funcs_struct = find_funcs_struct(func, structs);
 
 	f.write_fmt(format_args!("pub {} {{\n", &func.name[2..]))?;
@@ -107,17 +100,25 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 
 	f.write_fmt(format_args!("impl {} {{\n", &func.name[2..]))?;
 
-	for entry in funcs_strucs.entries {
-		func_ptr.write_func_def(&mut f, |index, arg| {
-			if index == 0 {
-				("&mut self".to_owned(), "".to_owned())
-			} else {
-				(arg.name.to_owned(), arg.rust_type.to_owned())
+	for entry in &funcs_struct.entries {
+		match entry {
+			&StructEntry::FunctionPtr(ref func_ptr) => {
+				func_ptr.write_func_def(f, |index, arg| {
+					if index == 0 {
+						("&mut self".to_owned(), "".to_owned())
+					} else {
+						(arg.name.to_owned(), arg.rust_type.to_owned())
+					}
+				})?;
 			}
-		})?;
+
+			_ => (),
+		}
 	}
 
 	f.write_all(b"}\n\n")?;
+
+	Ok(())
 }
 
 ///
@@ -132,19 +133,25 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 /// 5. If struct has GUWidget* base also generate Widget trait impl
 ///
 fn generate_rust_binding(filename: &str, structs: &Vec<Struct>) -> io::Result<()> {
-	let wrui_struct = structs.find(|&e| { e.name == "Wrui" } ).unwrap();
+	let mut f = File::create(filename)?;
 
-	for entry in wrui_struct.entries {
+	let wrui_struct = structs.iter().find(|&e| { e.name == "Wrui" } ).unwrap();
+
+	for entry in &wrui_struct.entries {
 		match entry {
 			&StructEntry::FunctionPtr(ref func_ptr) => {
-				if !is_crate_func(func_ptr) {
+				if !is_create_func(func_ptr) {
 					continue;
 				}
 
-
+				generate_struct(&mut f, func_ptr, structs)?;
 			}
+
+			_ => (),
 		}
 	}
+
+	Ok(())
 }
 
 fn main() {
@@ -175,6 +182,10 @@ fn main() {
     }
 
     if let Err(err) = generate_traits(TRAITS_FILE, &structs) {
+        panic!("Unable to generate {} err {:?}", RUST_FFI_FILE, err);
+    }
+
+    if let Err(err) = generate_rust_binding(WIDGETS_FILE, &structs) {
         panic!("Unable to generate {} err {:?}", RUST_FFI_FILE, err);
     }
 }
