@@ -81,28 +81,30 @@ fn is_create_func(func: &FuncPtr) -> bool {
 ///
 ///
 ///
-fn find_funcs_struct<'a>(func: &FuncPtr, structs: &'a Vec<Struct>) -> &'a Struct {
-	let index = func.name.find("_create").unwrap();
-	structs.iter().find(|&e| { e.name == &func.name[..index] }).unwrap()
+fn find_funcs_struct<'a>(name: &str, structs: &'a Vec<Struct>) -> &'a Struct {
+	println!("seaching for {}", name);
+	structs.iter().find(|&e| { e.name == name }).unwrap()
 }
 
 ///
 /// 3. Find name_funcs that maps to 2.
 ///
 fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::Result<()> {
-	let type_name = func.return_val.as_ref().unwrap().name[7..].to_owned();
-	let funcs_struct = find_funcs_struct(func, structs);
+	let type_name = func.return_val.as_ref().unwrap().rust_type[7..].to_owned();
+	let funcs_name = type_name.clone() + "Funcs";
+	let funcs_struct = find_funcs_struct(&funcs_name, structs);
 
-	f.write_fmt(format_args!("pub {} {{\n", &func.name[2..]))?;
-	f.write_fmt(format_args!("    funcs: *const {}", funcs_struct.name))?;
-	f.write_fmt(format_args!("    obj: *const {}", type_name))?;
+	f.write_fmt(format_args!("pub {} {{\n", &type_name[2..]))?;
+	f.write_fmt(format_args!("    funcs: *const {},\n", funcs_struct.name))?;
+	f.write_fmt(format_args!("    obj: *const {},\n", type_name))?;
 	f.write_all(b"}\n\n")?;
 
-	f.write_fmt(format_args!("impl {} {{\n", &func.name[2..]))?;
+	f.write_fmt(format_args!("impl {} {{\n", &type_name[2..]))?;
 
 	for entry in &funcs_struct.entries {
 		match entry {
 			&StructEntry::FunctionPtr(ref func_ptr) => {
+				f.write_fmt(format_args!("    fn {}(", func_ptr.name))?;
 				func_ptr.write_func_def(f, |index, arg| {
 					if index == 0 {
 						("&mut self".to_owned(), "".to_owned())
@@ -110,6 +112,7 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 						(arg.name.to_owned(), arg.rust_type.to_owned())
 					}
 				})?;
+				f.write_all(b",\n")?;
 			}
 
 			_ => (),

@@ -7,7 +7,7 @@ extern GUDockWidgetFuncs g_dockWidgetFuncs;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static struct GUDockWidget* create(struct GUWidget* parent) {
+struct GUDockWidget* dock_widget_create(struct GUWidget* parent) {
 	QDockWidget* qdock = nullptr;
 
 	if (parent)
@@ -25,11 +25,13 @@ static struct GUDockWidget* create(struct GUWidget* parent) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
 static struct GUDockWidget* create_title(const char* name, struct GUWidget* parent) {
 	(void)name;
 	printf("dock_widget: create_title not fully implemented yet\n");
 	return create(parent);
 }
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -59,8 +61,8 @@ static struct GUWidget* widget(GUDockWidget* w) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 GUDockWidgetFuncs g_dockWidgetFuncs = {
-	create,
-	create_title,
+	//create,
+	//create_title,
 	is_floating,
 	set_floating,
 	set_widget,

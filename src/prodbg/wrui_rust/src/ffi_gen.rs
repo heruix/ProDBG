@@ -19,6 +19,11 @@ pub struct GUWidgetFuncs {
 }
 
 #[repr(C)]
+pub struct GUWindowFuncs {
+    pub set_title: extern "C" fn(area: u32),
+}
+
+#[repr(C)]
 pub struct GUMainWindowFuncs {
     pub add_dock_widget: extern "C" fn(win: *const GUMainWindow, area: u32, widget: *const GUDockWidget),
 }
