@@ -82,8 +82,27 @@ fn is_create_func(func: &FuncPtr) -> bool {
 ///
 ///
 fn find_funcs_struct<'a>(name: &str, structs: &'a Vec<Struct>) -> &'a Struct {
-	println!("seaching for {}", name);
 	structs.iter().find(|&e| { e.name == name }).unwrap()
+}
+
+fn remap_rust_type(var: &Variable) -> String {
+    let mut type_name;
+
+    if var.type_name.find("*const c_char").is_some() {
+        type_name = "&str";
+    } else if var.type_name.find("*const ").is_some() {
+        type_name = &var.type_name[7..];
+    } else {
+        type_name = &var.type_name;
+    }
+
+    if let Some(index) = var.name.find("opt_") {
+        if index == 0 {
+            format!("Option<{}>", type_name)
+        }
+    } else {
+        type_name.to_owned()
+    }
 }
 
 ///
@@ -104,7 +123,7 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 	for entry in &funcs_struct.entries {
 		match entry {
 			&StructEntry::FunctionPtr(ref func_ptr) => {
-				f.write_fmt(format_args!("    fn {}(", func_ptr.name))?;
+				f.write_fmt(format_args!("    pub fn {}(", func_ptr.name))?;
 				func_ptr.write_func_def(f, |index, arg| {
 					if index == 0 {
 						("&mut self".to_owned(), "".to_owned())
@@ -112,7 +131,6 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 						(arg.name.to_owned(), arg.rust_type.to_owned())
 					}
 				})?;
-				f.write_all(b",\n")?;
 			}
 
 			_ => (),
