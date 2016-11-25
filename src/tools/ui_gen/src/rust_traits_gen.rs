@@ -2,6 +2,8 @@ use std::io;
 use std::fs::File;
 use std::io::Write;
 
+use ::data::*;
+
 struct MatchName {
 	c_name: &'static str,
 	rust_name: &'static str,

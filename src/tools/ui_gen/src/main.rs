@@ -1,15 +1,10 @@
-use std::io;
-use std::fs::File;
-use std::io::Write;
-
 extern crate clang;
 
 pub mod data;
 mod rust_ffi_gen;
 mod rust_widgets_gen;
 mod rust_traits_gen;
-
-use data::*;
+mod rust_ui_gen;
 
 use clang::*;
 
@@ -17,7 +12,7 @@ static INPUT_HEADER: &'static str = "../../native/external/wrui/include/wrui.h";
 static RUST_FFI_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/ffi_gen.rs";
 static TRAITS_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/traits_gen.rs";
 static WIDGETS_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/widgets.rs";
-
+static UI_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/ui_gen.rs";
 
 fn main() {
     // Acquire an instance of `Clang`
@@ -52,5 +47,13 @@ fn main() {
 
     if let Err(err) = rust_widgets_gen::generate_rust_binding(WIDGETS_FILE, &structs) {
         panic!("Unable to generate {} err {:?}", WIDGETS_FILE, err);
+    }
+
+    if let Err(err) = rust_widgets_gen::generate_rust_binding(WIDGETS_FILE, &structs) {
+        panic!("Unable to generate {} err {:?}", WIDGETS_FILE, err);
+    }
+
+    if let Err(err) = rust_ui_gen::generate_ui(UI_FILE, &structs) {
+        panic!("Unable to generate {} err {:?}", UI_FILE, err);
     }
 }
