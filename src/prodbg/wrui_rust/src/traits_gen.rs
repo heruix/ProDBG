@@ -1,4 +1,4 @@
 pub trait Widget {
-    fn set_size(&mut self, width: i32, height: i32),
+    fn set_size(&self, width: i32, height: i32),
 }
 

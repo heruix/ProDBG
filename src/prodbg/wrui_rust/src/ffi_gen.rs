@@ -19,7 +19,7 @@ pub struct GUWidgetFuncs {
 
 #[repr(C)]
 pub struct GUWindowFuncs {
-    pub set_title_foo: extern "C" fn(name: *const c_char),
+    pub set_title: extern "C" fn(win: *const GUWindow, name: *const c_char),
 }
 
 #[repr(C)]
