@@ -11,7 +11,7 @@ use clang::*;
 static INPUT_HEADER: &'static str = "../../native/external/wrui/include/wrui.h";
 static RUST_FFI_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/ffi_gen.rs";
 static TRAITS_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/traits_gen.rs";
-static WIDGETS_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/widgets.rs";
+static WIDGETS_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/widgets_gen.rs";
 static UI_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/ui_gen.rs";
 
 fn main() {

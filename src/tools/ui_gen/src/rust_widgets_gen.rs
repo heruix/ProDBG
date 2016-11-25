@@ -102,9 +102,9 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 	let funcs_name = type_name.clone() + "Funcs";
 	let funcs_struct = find_funcs_struct(&funcs_name, structs);
 
-	f.write_fmt(format_args!("pub {} {{\n", &type_name[2..]))?;
-	f.write_fmt(format_args!("    funcs: *const {},\n", funcs_struct.name))?;
-	f.write_fmt(format_args!("    obj: *const {},\n", type_name))?;
+	f.write_fmt(format_args!("pub struct {} {{\n", &type_name[2..]))?;
+	f.write_fmt(format_args!("    pub funcs: *const {},\n", funcs_struct.name))?;
+	f.write_fmt(format_args!("    pub obj: *const {},\n", type_name))?;
 	f.write_all(b"}\n\n")?;
 
 	f.write_fmt(format_args!("impl {} {{\n", &type_name[2..]))?;
@@ -140,7 +140,9 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 pub fn generate_rust_binding(filename: &str, structs: &Vec<Struct>) -> io::Result<()> {
 	let mut f = File::create(filename)?;
 
-    f.write_all(b"use std::ffi::CString\n\n")?;
+    f.write_all(b"use std::ffi::CString;\n\n")?;
+    f.write_all(b"use ffi_gen::*;\n\n")?;
+    f.write_all(b"use traits_gen::*;\n\n")?;
 
 	let wrui_struct = structs.iter().find(|&e| { e.name == "Wrui" } ).unwrap();
 

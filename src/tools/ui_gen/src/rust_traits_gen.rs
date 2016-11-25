@@ -19,6 +19,8 @@ pub fn generate_traits(filename: &str, structs: &Vec<Struct>) -> io::Result<()> 
 
 	let mut f = File::create(filename)?;
 
+    f.write_all(b"use ::ffi_gen;")?;
+
 	for struct_ in structs {
 		for trait_name in &trait_names {
 			if struct_.name != trait_name.c_name {
@@ -40,16 +42,18 @@ pub fn generate_traits(filename: &str, structs: &Vec<Struct>) -> io::Result<()> 
                             }
                         })?;
 
-						f.write_all(b",\n")?;
+						f.write_all(b";\n")?;
 					}
 
                 	&StructEntry::Var(ref _var) => (),
 				}
 			}
 
+	        f.write_all(b"    fn get_obj(&self) -> *const ffi_gen::GUWidget;\n")?;
         	f.write_all(b"}\n\n")?;
 		}
 	}
+
 
 	Ok(())
 }

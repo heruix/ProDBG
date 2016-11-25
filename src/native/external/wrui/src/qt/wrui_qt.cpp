@@ -5,8 +5,7 @@
 #include <QPushButton>
 #include <QMainWindow>
 
-
-extern struct GUDockWidget* dock_widget_create(struct GUWidget* parent);
+extern struct GUDockWidget* dock_widget_create();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,9 +48,8 @@ static struct GUWidgetFuncs s_widgetFuncs = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static int app_run(void* app) {
-	GUApplication* t = (GUApplication*)app;
-	QApplication* qt_app = (QApplication*)t->p;
+static int app_run(GUApplication* app) {
+	QApplication* qt_app = (QApplication*)app->p;
 	return qt_app->exec();
 }
 
@@ -73,8 +71,7 @@ static GUApplication* application_create() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static GUPushButton* push_button_create(GUWidget* parent) {
-    (void)parent;
+static GUPushButton* push_button_create() {
 	QPushButton* qt_button = new QPushButton(0, 0);
 	qt_button->show();
 
@@ -91,10 +88,9 @@ static GUPushButton* push_button_create(GUWidget* parent) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static GUMainWindow* main_window_create(GUWidget* parent) {
+static GUMainWindow* main_window_create() {
 	QMainWindow* qt_win = new QMainWindow();
 	qt_win->setWindowTitle("none");
-	(void)parent;
 
 	// TODO: Smarter allocator than just using new all the time
 
@@ -126,9 +122,11 @@ static Wrui s_wrui = {
 
 	&s_objFuncs,
 	&s_widgetFuncs,
+	0,
 	&g_mainWindowFuncs,
 	0,
-	&s_appFuncs
+	&s_appFuncs,
+	0
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

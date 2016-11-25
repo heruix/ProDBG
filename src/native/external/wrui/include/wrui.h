@@ -13,6 +13,7 @@ struct GUPushButton;
 struct GUWindow;
 struct GUMainWindow;
 struct GUDockWidget;
+struct GUApplication;
 
 #define GU_EVENT_RELEASED "2released()"
 
@@ -65,7 +66,7 @@ typedef struct GUPushButtonFuncs {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct GUApplicationFuncs {
-	int (*run)(void* p);
+	int (*run)(struct GUApplication* p);
 } GUApplicationFuncs;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,16 +104,18 @@ typedef struct Wrui {
 	uint64_t api_version;
 
 	GUApplication* (*application_create)();
-	GUWindow* (*window_create)(GUWidget* parent);
-	GUPushButton* (*push_button_create)(GUWidget* parent);
-	GUMainWindow* (*main_window_create)(GUWidget* parent);
-	GUDockWidget* (*dock_widget_create)(GUWidget* parent);
+	GUWindow* (*window_create)();
+	GUPushButton* (*push_button_create)();
+	GUMainWindow* (*main_window_create)();
+	GUDockWidget* (*dock_widget_create)();
 
 	GUObjectFuncs* object_funcs;
 	GUWidgetFuncs* widget_funcs;
+	GUWindowFuncs* window_funcs;
 	GUMainWindowFuncs* main_window_funcs;
 	GUPushButtonFuncs* push_button_funcs;
 	GUApplicationFuncs* application_funcs;
+	GUDockWidgetFuncs* dock_widget_funcs; 
 
 } Wrui;
 

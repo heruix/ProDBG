@@ -34,7 +34,7 @@ pub struct GUPushButtonFuncs {
 
 #[repr(C)]
 pub struct GUApplicationFuncs {
-    pub run: extern "C" fn(p: *const c_void) -> i32,
+    pub run: extern "C" fn(p: *const GUApplication) -> i32,
 }
 
 #[repr(C)]
@@ -77,15 +77,17 @@ pub struct GUApplication {
 pub struct Wrui {
     pub api_version: u64,
     pub application_create: extern "C" fn() -> *const GUApplication,
-    pub window_create: extern "C" fn(parent: *const GUWidget) -> *const GUWindow,
-    pub push_button_create: extern "C" fn(parent: *const GUWidget) -> *const GUPushButton,
-    pub main_window_create: extern "C" fn(parent: *const GUWidget) -> *const GUMainWindow,
-    pub dock_widget_create: extern "C" fn(parent: *const GUWidget) -> *const GUDockWidget,
+    pub window_create: extern "C" fn() -> *const GUWindow,
+    pub push_button_create: extern "C" fn() -> *const GUPushButton,
+    pub main_window_create: extern "C" fn() -> *const GUMainWindow,
+    pub dock_widget_create: extern "C" fn() -> *const GUDockWidget,
     pub object_funcs: *const GUObjectFuncs,
     pub widget_funcs: *const GUWidgetFuncs,
+    pub window_funcs: *const GUWindowFuncs,
     pub main_window_funcs: *const GUMainWindowFuncs,
     pub push_button_funcs: *const GUPushButtonFuncs,
     pub application_funcs: *const GUApplicationFuncs,
+    pub dock_widget_funcs: *const GUDockWidgetFuncs,
 }
 
 extern "C" {

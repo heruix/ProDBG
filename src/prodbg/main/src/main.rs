@@ -5,7 +5,7 @@ extern crate settings;
 extern crate project;
 extern crate wrui;
 
-use wrui::Ui;
+use wrui::ui_gen::Ui;
 
 fn main() {
 
@@ -13,7 +13,7 @@ fn main() {
 
     let app = ui.application_create();
 
-    let _button = ui.push_button_create("foo!!", None); 
+    let _button = ui.push_button_create(); 
 
     app.run();
 

@@ -11,11 +11,11 @@ use ffi_gen::*;
 use traits_gen::*;
 use widgets_gen::*;
 pub struct Ui {
-    wrui: *const ffi::Wrui
+    wrui: *const Wrui
 }\n
 impl Ui {
-    pub fn new(wrui: *const ffi::Wrui) -> Ui { Ui { wrui: wrui } }
-    pub fn new_default() -> Ui { unsafe { Ui { wrui: ffi::wrui_get() } } }
+    pub fn new(wrui: *const Wrui) -> Ui { Ui { wrui: wrui } }
+    pub fn new_default() -> Ui { unsafe { Ui { wrui: wrui_get() } } }
     pub fn api_version(&self) -> u64 {
         unsafe {
             (*self.wrui).api_version
@@ -48,7 +48,7 @@ fn generate_create_func(f: &mut File, func_ptr: &FuncPtr) -> io::Result<()> {
 	let type_name = func_ptr.return_val.as_ref().unwrap().rust_type.to_owned();
 	let funcs_name = func_ptr.name.replace("create", "funcs"); 
 
-    f.write_fmt(format_args!("    pub fn {}() -> {} {{\n", func_ptr.name, type_name))?;
+    f.write_fmt(format_args!("    pub fn {}(&self) -> {} {{\n", func_ptr.name, type_name))?;
     f.write_fmt(format_args!("        unsafe {{\n"))?;
     f.write_fmt(format_args!("            {} {{\n", type_name))?;
     f.write_fmt(format_args!("                funcs: (*self.wrui).{},\n", funcs_name))?;
