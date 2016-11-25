@@ -5,3 +5,4 @@ authors = ["Daniel Collin <daniel@collin.com>"]
 
 [dependencies]
 clang = "0.14.0"
+regex = "0.1.80"

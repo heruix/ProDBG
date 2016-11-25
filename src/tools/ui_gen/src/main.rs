@@ -49,7 +49,7 @@ pub fn generate_traits(filename: &str, structs: &Vec<Struct>) -> io::Result<()> 
                             if index == 0 {
                                 ("&mut self".to_owned(), "".to_owned())
                             } else {
-                                (arg.name.to_owned(), arg.rust_type.to_owned())
+                                (arg.name.to_owned(), arg.rust_ffi_type.to_owned())
                             }
                         })?;
 
@@ -86,22 +86,14 @@ fn find_funcs_struct<'a>(name: &str, structs: &'a Vec<Struct>) -> &'a Struct {
 }
 
 fn remap_rust_type(var: &Variable) -> String {
-    let mut type_name;
-
-    if var.type_name.find("*const c_char").is_some() {
-        type_name = "&str";
-    } else if var.type_name.find("*const ").is_some() {
-        type_name = &var.type_name[7..];
+    if var.name.find("opt_").is_some() {
+        format!("Option<&{}>", var.rust_type)
     } else {
-        type_name = &var.type_name;
-    }
-
-    if let Some(index) = var.name.find("opt_") {
-        if index == 0 {
-            format!("Option<{}>", type_name)
+        if var.access_type.is_some() {
+            format!("&{}", var.rust_type)
+        } else {
+            var.rust_type.to_owned()
         }
-    } else {
-        type_name.to_owned()
     }
 }
 
@@ -109,7 +101,7 @@ fn remap_rust_type(var: &Variable) -> String {
 /// 3. Find name_funcs that maps to 2.
 ///
 fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::Result<()> {
-	let type_name = func.return_val.as_ref().unwrap().rust_type[7..].to_owned();
+	let type_name = func.return_val.as_ref().unwrap().rust_ffi_type[7..].to_owned();
 	let funcs_name = type_name.clone() + "Funcs";
 	let funcs_struct = find_funcs_struct(&funcs_name, structs);
 
@@ -128,9 +120,35 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 					if index == 0 {
 						("&mut self".to_owned(), "".to_owned())
 					} else {
-						(arg.name.to_owned(), arg.rust_type.to_owned())
+						(arg.name.to_owned(), remap_rust_type(&arg))
 					}
 				})?;
+
+                f.write_all(b" {\n")?;
+                f.write_all(b"        unsafe {\n")?;
+				f.write_fmt(format_args!("            ((*self.funcs).{})(", func_ptr.name))?;
+
+				let arg_count = func_ptr.function_args.len();
+
+				func_ptr.write_func_def(f, |index, arg| {
+				    if index == arg_count {
+				        return ("".to_owned(), "".to_owned());
+                    }
+
+					if index == 0 {
+						("self.obj".to_owned(), "".to_owned())
+					} else {
+					    if let Some(access) = arg.access_type {
+						    (format!("{}{}", arg.name.to_owned(), access), "".to_owned())
+                        } else {
+						    (arg.name.to_owned(), "".to_owned())
+                        }
+					}
+				})?;
+				                         
+                f.write_all(b"\n")?;
+                f.write_all(b"        }\n")?;
+                f.write_all(b"    }\n\n")?;
 			}
 
 			_ => (),

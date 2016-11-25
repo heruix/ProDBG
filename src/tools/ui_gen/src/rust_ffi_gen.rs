@@ -16,14 +16,14 @@ pub fn generate_ffi_bindings(filename: &str, structs: &Vec<Struct>) -> io::Resul
         for entry in &struct_.entries {
             match entry {
                 &StructEntry::Var(ref var) => {
-                    f.write_fmt(format_args!("    pub {}: {},\n", var.name, var.rust_type))?;
+                    f.write_fmt(format_args!("    pub {}: {},\n", var.name, var.rust_ffi_type))?;
                 }
 
                 &StructEntry::FunctionPtr(ref func_ptr) => {
                     f.write_fmt(format_args!("    pub {}: extern \"C\" fn(", func_ptr.name))?;
 
                     func_ptr.write_func_def(&mut f, |_, arg| {
-                        (arg.name.to_owned(), arg.rust_type.to_owned())
+                        (arg.name.to_owned(), arg.rust_ffi_type.to_owned())
                     })?;
 
                     f.write_all(b",\n")?;

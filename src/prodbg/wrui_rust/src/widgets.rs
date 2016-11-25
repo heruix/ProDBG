@@ -4,7 +4,12 @@ pub Application {
 }
 
 impl Application {
-    fn run(&mut self) -> i32,
+    pub fn run(&mut self) -> i32 {
+        unsafe {
+            ((*self.funcs).run)(self.obj)
+        }
+    }
+
 }
 
 pub Window {
@@ -13,7 +18,12 @@ pub Window {
 }
 
 impl Window {
-    fn set_title(&mut self),
+    pub fn set_title_foo(&mut self) {
+        unsafe {
+            ((*self.funcs).set_title_foo)(self.obj)
+        }
+    }
+
 }
 
 pub PushButton {
@@ -22,7 +32,12 @@ pub PushButton {
 }
 
 impl PushButton {
-    fn set_default(&mut self, state: i32),
+    pub fn set_default(&mut self, state: i32) {
+        unsafe {
+            ((*self.funcs).set_default)(self.obj, state)
+        }
+    }
+
 }
 
 pub MainWindow {
@@ -31,7 +46,12 @@ pub MainWindow {
 }
 
 impl MainWindow {
-    fn add_dock_widget(&mut self, area: u32, widget: *const GUDockWidget),
+    pub fn add_dock_widget(&mut self, area: u32, widget: &DockWidget) {
+        unsafe {
+            ((*self.funcs).add_dock_widget)(self.obj, area, widget.get_obj())
+        }
+    }
+
 }
 
 pub DockWidget {
@@ -40,9 +60,23 @@ pub DockWidget {
 }
 
 impl DockWidget {
-    fn is_floating(&mut self) -> bool,
-    fn set_floating(&mut self, floating: bool),
-    fn set_widget(&mut self, widget: *const GUWidget),
-    fn widget(&mut self) -> *const GUWidget,
+    pub fn is_floating(&mut self) -> bool {
+        unsafe {
+            ((*self.funcs).is_floating)(self.obj)
+        }
+    }
+
+    pub fn set_floating(&mut self, floating: bool) {
+        unsafe {
+            ((*self.funcs).set_floating)(self.obj, floating)
+        }
+    }
+
+    pub fn set_widget(&mut self, widget: &Widget) {
+        unsafe {
+            ((*self.funcs).set_widget)(self.obj, widget.get_obj())
+        }
+    }
+
 }
 

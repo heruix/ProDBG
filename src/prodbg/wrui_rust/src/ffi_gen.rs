@@ -5,7 +5,6 @@ pub struct GUDockWidgetFuncs {
     pub is_floating: extern "C" fn(dock_widget: *const GUDockWidget) -> bool,
     pub set_floating: extern "C" fn(dock_widget: *const GUDockWidget, floating: bool),
     pub set_widget: extern "C" fn(dock_widget: *const GUDockWidget, widget: *const GUWidget),
-    pub widget: extern "C" fn(dock_widget: *const GUDockWidget) -> *const GUWidget,
 }
 
 #[repr(C)]
@@ -20,7 +19,7 @@ pub struct GUWidgetFuncs {
 
 #[repr(C)]
 pub struct GUWindowFuncs {
-    pub set_title: extern "C" fn(area: u32),
+    pub set_title_foo: extern "C" fn(name: *const c_char),
 }
 
 #[repr(C)]

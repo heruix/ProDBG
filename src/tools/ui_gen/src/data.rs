@@ -8,7 +8,11 @@ extern crate clang;
 pub struct Variable {
     pub name: String,
     pub c_type: String,
+    pub rust_ffi_type: String,
     pub rust_type: String,
+    // This is set if we for example need to call
+    // foo.get_ptr() to access the real rust type
+    pub access_type: Option<&'static str>,
 }
 
 #[derive(Debug)]
@@ -44,35 +48,51 @@ fn is_type_function_ptr(t: &clang::Type) -> bool {
     }
 }
 
+fn get_primitive_type(name: &str) -> Option<&'static str> {
+    match name {
+        "_Bool" => Some("bool"),
+        "int" => Some("i32"),
+        "uint8_t" => Some("u8"),
+        "uint16_t" => Some("u16"),
+        "uint32_t" => Some("u32"),
+        "uint64_t" => Some("u64"),
+        "int8_t" => Some("s8"),
+        "int16_t" => Some("s16"),
+        "int32_t" => Some("s32"),
+        "int64_t" => Some("s64"),
+        "constchar*" => Some("*const c_char"),
+        "void*" => Some("*const c_void"),
+        "void" => Some(""),
+        _ => None,
+    }
+}
+
 
 ///
 /// Maps a C type to Rust
 ///
-fn map_c_type_to_rust(name: &String) -> String {
+fn map_c_type_to_rust(name: &String) -> (String, String, Option<&'static str>) {
     let s = name.replace("struct ", "");
     let s = s.replace(" ", "");
 
-    match s.as_str() {
-        "_Bool" => "bool".to_owned(),
-        "int" => "i32".to_owned(),
-        "uint8_t" => "u8".to_owned(),
-        "uint16_t" => "u16".to_owned(),
-        "uint32_t" => "u32".to_owned(),
-        "uint64_t" => "u64".to_owned(),
-        "int8_t" => "s8".to_owned(),
-        "int16_t" => "s16".to_owned(),
-        "int32_t" => "s32".to_owned(),
-        "int64_t" => "s64".to_owned(),
-        "constchar*" => "*const c_char".to_owned(),
-        "void*" => "*const c_void".to_owned(),
-        _ => {
-            // found pointer, return as is
-            if s.find("*").is_some() {
-                format!("*const {}", &s[..s.len() - 1])
-            } else {
-                panic!("Unable to decode type {}", name);
-            }
+    if let Some(prim_type) = get_primitive_type(&s) {
+        if prim_type == "*const c_char" {
+            return (prim_type.to_owned(), "&str".to_owned(), Some(".as_ptr()"));
+        } else {
+            return (prim_type.to_owned(), prim_type.to_owned(), None);
         }
+    }
+
+    println!("type {}", s);
+    // found pointer, return as is
+    if s.find("*").is_some() {
+        if s.find("GU").is_some() {
+            (format!("*const {}", &s[..s.len() - 1]), s[2..s.len() - 1].to_owned(), Some(".get_obj()"))
+        } else {
+            (format!("*const {}", &s[..s.len() - 1]), "".to_owned(), None)
+        }
+    } else {
+        panic!("Unable to decode type {}", name);
     }
 }
 
@@ -82,11 +102,15 @@ fn map_c_type_to_rust(name: &String) -> String {
 fn generate_var(var: &clang::Entity) -> StructEntry {
     let t = var.get_type().unwrap();
     let display_name = t.get_display_name();
+            
+    let types = map_c_type_to_rust(&display_name);
 
     let var = Variable {
         name: var.get_display_name().unwrap().to_owned(),
         c_type: display_name.to_owned(),
-        rust_type: map_c_type_to_rust(&display_name),
+        rust_ffi_type: types.0,
+        rust_type: types.1,
+        access_type: types.2,
     };
 
     StructEntry::Var(var)
@@ -109,12 +133,15 @@ fn generate_function_ptr(var: &clang::Entity) -> StructEntry {
 
     let type_end = display_name.find("(*)").unwrap();	// will always be ok inside this function as we found this before
     let ret_type = &display_name[..type_end];
+    let types = map_c_type_to_rust(&ret_type.to_owned());
 
     if ret_type != "void " {
         func_ptr.return_val = Some(Variable {
             name: "".to_owned(),
             c_type: ret_type.to_owned(),
-            rust_type: map_c_type_to_rust(&ret_type.to_owned()),
+            rust_ffi_type: types.0,
+            rust_type: types.1,
+            access_type: types.2,
         });
     }
 
@@ -124,12 +151,18 @@ fn generate_function_ptr(var: &clang::Entity) -> StructEntry {
         if c.get_kind() == clang::EntityKind::TypeRef {
             continue;
         }
+        
+        let types = map_c_type_to_rust(&t.get_display_name());
 
         let param = Variable {
             name: c.get_display_name().unwrap().to_owned(),
             c_type: t.get_display_name(),
-            rust_type: map_c_type_to_rust(&t.get_display_name()),
+            rust_ffi_type: types.0,
+            rust_type: types.1,
+            access_type: types.2,
         };
+
+        println!("param {:?}", param);
 
         func_ptr.function_args.push(param);
     }
@@ -190,7 +223,9 @@ impl FuncPtr {
 
         if let Some(ref ret_var) = self.return_val {
             let filter_arg = filter(arg_count, &ret_var);
-            f.write_fmt(format_args!(" -> {}", filter_arg.1))?;
+            if filter_arg.1 != "" {
+                f.write_fmt(format_args!(" -> {}", filter_arg.1))?;
+            }
         }
 
         Ok(())
