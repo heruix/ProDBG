@@ -13,7 +13,8 @@ fn main() {
 
     let app = ui.application_create();
 
-    let _button = ui.push_button_create(); 
+    let button = ui.push_button_create(); 
+    button.set_title("Foo!");
 
     app.run();
 

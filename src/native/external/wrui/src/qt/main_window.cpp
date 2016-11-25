@@ -29,7 +29,16 @@ static void add_dock_widget(GUMainWindow* win, uint32_t area, struct GUDockWidge
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+static void set_central_widget(GUMainWindow* win, struct GUWidget* widget) {
+	QMainWindow* qt_main_win = (QMainWindow*)win->base->object->p;
+	QWidget* qt_widget = (QWidget*)widget->object->p;
+	qt_main_win->setCentralWidget(qt_widget);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct GUMainWindowFuncs g_mainWindowFuncs = {
+	set_central_widget,
 	add_dock_widget,
 };
 

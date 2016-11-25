@@ -35,6 +35,7 @@ fn is_create_func(func: &FuncPtr) -> bool {
 ///    pub fn application_create(&self) -> Application {
 ///        unsafe {
 ///            Application {
+///                widget_funcs: (*self.wrui).widget_funcs,
 ///                funcs: (*self.wrui).application_funcs,
 ///                app: ((*self.wrui).application_create)()
 ///            }
@@ -48,6 +49,7 @@ fn generate_create_func(f: &mut File, func_ptr: &FuncPtr) -> io::Result<()> {
     f.write_fmt(format_args!("    pub fn {}(&self) -> {} {{\n", func_ptr.name, type_name))?;
     f.write_fmt(format_args!("        unsafe {{\n"))?;
     f.write_fmt(format_args!("            {} {{\n", type_name))?;
+    f.write_fmt(format_args!("                widget_funcs: (*self.wrui).{},\n", "widget_funcs"))?;
     f.write_fmt(format_args!("                funcs: (*self.wrui).{},\n", funcs_name))?;
     f.write_fmt(format_args!("                obj: ((*self.wrui).{})()\n", func_ptr.name))?;
     f.write_all(b"           }\n")?;

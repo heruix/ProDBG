@@ -24,12 +24,13 @@ pub struct GUWindowFuncs {
 
 #[repr(C)]
 pub struct GUMainWindowFuncs {
+    pub set_central_widget: extern "C" fn(win: *const GUMainWindow, widget: *const GUWidget),
     pub add_dock_widget: extern "C" fn(win: *const GUMainWindow, area: u32, widget: *const GUDockWidget),
 }
 
 #[repr(C)]
 pub struct GUPushButtonFuncs {
-    pub set_default: extern "C" fn(button: *const GUPushButton, state: i32),
+    pub set_title: extern "C" fn(button: *const GUPushButton, text: *const c_char),
 }
 
 #[repr(C)]

@@ -5,6 +5,7 @@ use ffi_gen::*;
 use traits_gen::*;
 
 pub struct Application {
+    pub widget_funcs: *const GUWidgetFuncs,
     pub funcs: *const GUApplicationFuncs,
     pub obj: *const GUApplication,
 }
@@ -21,6 +22,7 @@ impl Application {
 }
 
 pub struct Window {
+    pub widget_funcs: *const GUWidgetFuncs,
     pub funcs: *const GUWindowFuncs,
     pub obj: *const GUWindow,
 }
@@ -38,14 +40,16 @@ impl Window {
 }
 
 pub struct PushButton {
+    pub widget_funcs: *const GUWidgetFuncs,
     pub funcs: *const GUPushButtonFuncs,
     pub obj: *const GUPushButton,
 }
 
 impl PushButton {
-    pub fn set_default(&self, state: i32) {
+    pub fn set_title(&self, text: &str) {
+        let str_in_0 = CString::new(text).unwrap();
         unsafe {
-            ((*self.funcs).set_default)(self.obj, state)
+            ((*self.funcs).set_title)(self.obj, str_in_0.as_ptr())
         }
     }
 
@@ -54,11 +58,18 @@ impl PushButton {
 }
 
 pub struct MainWindow {
+    pub widget_funcs: *const GUWidgetFuncs,
     pub funcs: *const GUMainWindowFuncs,
     pub obj: *const GUMainWindow,
 }
 
 impl MainWindow {
+    pub fn set_central_widget(&self, widget: &Widget) {
+        unsafe {
+            ((*self.funcs).set_central_widget)(self.obj, widget.get_obj())
+        }
+    }
+
     pub fn add_dock_widget(&self, area: u32, widget: &DockWidget) {
         unsafe {
             ((*self.funcs).add_dock_widget)(self.obj, area, widget.get_obj())
@@ -70,6 +81,7 @@ impl MainWindow {
 }
 
 pub struct DockWidget {
+    pub widget_funcs: *const GUWidgetFuncs,
     pub funcs: *const GUDockWidgetFuncs,
     pub obj: *const GUDockWidget,
 }
@@ -97,3 +109,11 @@ impl DockWidget {
     pub fn get_obj(&self) -> *const GUDockWidget { self.obj }
 }
 
+impl Widget for DockWidget {
+   fn get_obj(&self) -> *const GUWidget {
+       unsafe { (*self.obj).base }
+   }
+   fn get_funcs(&self) -> *const GUWidgetFuncs {
+       self.widget_funcs
+   }
+}

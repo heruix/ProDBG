@@ -60,6 +60,21 @@ static struct GUApplicationFuncs s_appFuncs = {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+
+static void set_button_title(struct GUPushButton* button, const char* text) {
+	QPushButton* qt_button = (QPushButton*)button->base->object->p;
+	printf("Push button ptr (call) %p\n", (void*)qt_button);
+	qt_button->setText(QString::fromUtf8(text));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static struct GUPushButtonFuncs s_pushButtonFuncs {
+	set_button_title,
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 static GUApplication* application_create() {
 	int argc = 0;
@@ -74,6 +89,8 @@ static GUApplication* application_create() {
 static GUPushButton* push_button_create() {
 	QPushButton* qt_button = new QPushButton(0, 0);
 	qt_button->show();
+
+	printf("Push button ptr %p\n", (void*)qt_button);
 
 	// TODO: Smarter allocator than just using new all the time
 
@@ -124,7 +141,7 @@ static Wrui s_wrui = {
 	&s_widgetFuncs,
 	0,
 	&g_mainWindowFuncs,
-	0,
+	&s_pushButtonFuncs,
 	&s_appFuncs,
 	0
 };

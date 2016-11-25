@@ -54,13 +54,14 @@ typedef struct GUWindowFuncs {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct GUMainWindowFuncs {
+	void (*set_central_widget)(struct GUMainWindow* win, struct GUWidget* widget);
 	void (*add_dock_widget)(struct GUMainWindow* win, uint32_t area, struct GUDockWidget* widget);
 } GUMainWindowFuncs;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct GUPushButtonFuncs {
-	void (*set_default)(struct GUPushButton* button, int state);
+	void (*set_title)(struct GUPushButton* button, const char* text); 
 } GUPushButtonFuncs;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +101,8 @@ typedef struct GUApplication {
 	void* p; // private data
 } GUApplication;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 typedef struct Wrui {
 	uint64_t api_version;
 
@@ -119,31 +122,7 @@ typedef struct Wrui {
 
 } Wrui;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #define WRUI_VERSION(major, minor, sub) ((((uint64_t)major) << 32) | (minor << 16) | (sub))
-
-// Windowing
-
-#define gu_ctx_window_create(ctx) ctx->create_window()
-#define gu_window_create() gu_ctx_window_create(wrui_get())
-
-// Generic window stuff
-
-// #define gu_ctx_set_size(widget, x, y) wrui_get()->widget_funcs->set_size(widget->base, x, y)
-
-#define gu_set_size(widget, x, y) wrui_get()->widget_funcs->set_size(widget->base, x, y)
-#define gu_set_parent(widget, parent) widget->base->set_parent(widget->base, widget->base)
-#define gu_push_button_create(label, parent) wrui_get()->push_button_create(label, parent)
-
-// Connection API
-
-#define gu_connect(widget, id, data, func) wrui_get()->object_funcs->connect(widget->base->object, id, data, (void*)func)
-
-// Application
-
-#define gu_application_crate() wrui_get()->application_create()
-#define gu_application_run(app) wrui_get()->application_funcs->run(app)
 
 // Should be the only exported symbol
 

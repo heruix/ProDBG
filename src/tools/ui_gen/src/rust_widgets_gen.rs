@@ -38,7 +38,6 @@ fn remap_rust_type(var: &Variable) -> String {
 ///
 /// generate function entry
 ///
-
 fn generate_function_entry(f: &mut File, func_ptr: &FuncPtr) -> io::Result<()> {
     f.write_fmt(format_args!("    pub fn {}(", func_ptr.name))?;
     func_ptr.write_func_def(f, |index, arg| {
@@ -103,6 +102,7 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 	let funcs_struct = find_funcs_struct(&funcs_name, structs);
 
 	f.write_fmt(format_args!("pub struct {} {{\n", &type_name[2..]))?;
+	f.write_fmt(format_args!("    pub widget_funcs: *const {},\n", "GUWidgetFuncs"))?;
 	f.write_fmt(format_args!("    pub funcs: *const {},\n", funcs_struct.name))?;
 	f.write_fmt(format_args!("    pub obj: *const {},\n", type_name))?;
 	f.write_all(b"}\n\n")?;
@@ -122,6 +122,19 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 	// generate obj access function
 
 	f.write_all(b"}\n\n")?;
+
+	// For widgets we implemnt the Widget Trait also
+
+	if type_name.find("Widget").is_some() {
+	    f.write_fmt(format_args!("impl Widget for {} {{\n", &type_name[2..]))?;
+	    f.write_all(b"   fn get_obj(&self) -> *const GUWidget {\n")?;
+	    f.write_all(b"       unsafe { (*self.obj).base }\n")?;
+	    f.write_all(b"   }\n")?;
+	    f.write_all(b"   fn get_funcs(&self) -> *const GUWidgetFuncs {\n")?;
+	    f.write_all(b"       self.widget_funcs\n")?;
+	    f.write_all(b"   }\n")?;
+	    f.write_all(b"}\n")?;
+    }
 
 	Ok(())
 }

@@ -17,6 +17,7 @@ impl Ui {
     pub fn application_create(&self) -> Application {
         unsafe {
             Application {
+                widget_funcs: (*self.wrui).widget_funcs,
                 funcs: (*self.wrui).application_funcs,
                 obj: ((*self.wrui).application_create)()
            }
@@ -26,6 +27,7 @@ impl Ui {
     pub fn window_create(&self) -> Window {
         unsafe {
             Window {
+                widget_funcs: (*self.wrui).widget_funcs,
                 funcs: (*self.wrui).window_funcs,
                 obj: ((*self.wrui).window_create)()
            }
@@ -35,6 +37,7 @@ impl Ui {
     pub fn push_button_create(&self) -> PushButton {
         unsafe {
             PushButton {
+                widget_funcs: (*self.wrui).widget_funcs,
                 funcs: (*self.wrui).push_button_funcs,
                 obj: ((*self.wrui).push_button_create)()
            }
@@ -44,6 +47,7 @@ impl Ui {
     pub fn main_window_create(&self) -> MainWindow {
         unsafe {
             MainWindow {
+                widget_funcs: (*self.wrui).widget_funcs,
                 funcs: (*self.wrui).main_window_funcs,
                 obj: ((*self.wrui).main_window_create)()
            }
@@ -53,6 +57,7 @@ impl Ui {
     pub fn dock_widget_create(&self) -> DockWidget {
         unsafe {
             DockWidget {
+                widget_funcs: (*self.wrui).widget_funcs,
                 funcs: (*self.wrui).dock_widget_funcs,
                 obj: ((*self.wrui).dock_widget_create)()
            }
