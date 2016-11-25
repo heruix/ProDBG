@@ -1,9 +1,5 @@
 
-use std::ffi::CString;
-use std::ptr;
-
 use ffi_gen::*;
-use traits_gen::*;
 use widgets_gen::*;
 pub struct Ui {
     wrui: *const Wrui

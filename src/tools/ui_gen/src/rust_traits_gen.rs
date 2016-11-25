@@ -19,7 +19,7 @@ pub fn generate_traits(filename: &str, structs: &Vec<Struct>) -> io::Result<()> 
 
 	let mut f = File::create(filename)?;
 
-    f.write_all(b"use ::ffi_gen;")?;
+    f.write_all(b"use ::ffi_gen;\n\n")?;
 
 	for struct_ in structs {
 		for trait_name in &trait_names {

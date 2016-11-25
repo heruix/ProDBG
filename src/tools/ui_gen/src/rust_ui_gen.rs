@@ -5,10 +5,7 @@ use std::io::Write;
 use ::data::*;
 
 static HEADER: &'static [u8] = b"
-use std::ffi::CString;
-use std::ptr;\n
 use ffi_gen::*;
-use traits_gen::*;
 use widgets_gen::*;
 pub struct Ui {
     wrui: *const Wrui
