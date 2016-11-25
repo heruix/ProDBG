@@ -6,6 +6,8 @@ extern crate clang;
 
 pub mod data;
 mod rust_ffi_gen;
+mod rust_widgets_gen;
+mod rust_traits_gen;
 
 use data::*;
 
@@ -16,182 +18,6 @@ static RUST_FFI_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/ffi_gen.
 static TRAITS_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/traits_gen.rs";
 static WIDGETS_FILE: &'static str = "../../../src/prodbg/wrui_rust/src/widgets.rs";
 
-struct MatchName {
-	c_name: &'static str,
-	rust_name: &'static str,
-}
-
-pub fn generate_traits(filename: &str, structs: &Vec<Struct>) -> io::Result<()> {
-	let trait_names = [
-		MatchName {
-			c_name: "GUWidgetFuncs",
-			rust_name: "Widget",
-		}
-	];
-
-	let mut f = File::create(filename)?;
-
-	for struct_ in structs {
-		for trait_name in &trait_names {
-			println!("{} - {}", struct_.name, trait_name.c_name);
-			if struct_.name != trait_name.c_name {
-				continue;
-			}
-
-        	f.write_fmt(format_args!("pub trait {} {{\n", trait_name.rust_name))?;
-
-        	for entry in &struct_.entries {
-        		match entry {
-					&StructEntry::FunctionPtr(ref func_ptr) => {
-                        f.write_fmt(format_args!("    fn {}(", func_ptr.name))?;
-
-                        func_ptr.write_func_def(&mut f, |index, arg| {
-                            if index == 0 {
-                                ("&mut self".to_owned(), "".to_owned())
-                            } else {
-                                (arg.name.to_owned(), arg.rust_ffi_type.to_owned())
-                            }
-                        })?;
-
-						f.write_all(b",\n")?;
-					}
-
-                	&StructEntry::Var(ref _var) => (),
-				}
-			}
-
-        	f.write_all(b"}\n\n")?;
-		}
-	}
-
-	Ok(())
-}
-
-///
-/// 2. Check if function is create style function
-///
-fn is_create_func(func: &FuncPtr) -> bool {
-	if func.name.find("_create").is_none() {
-		return false;
-	}
-
-	func.return_val.is_some()
-}
-
-///
-///
-///
-fn find_funcs_struct<'a>(name: &str, structs: &'a Vec<Struct>) -> &'a Struct {
-	structs.iter().find(|&e| { e.name == name }).unwrap()
-}
-
-fn remap_rust_type(var: &Variable) -> String {
-    if var.name.find("opt_").is_some() {
-        format!("Option<&{}>", var.rust_type)
-    } else {
-        if var.access_type.is_some() {
-            format!("&{}", var.rust_type)
-        } else {
-            var.rust_type.to_owned()
-        }
-    }
-}
-
-///
-/// 3. Find name_funcs that maps to 2.
-///
-fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::Result<()> {
-	let type_name = func.return_val.as_ref().unwrap().rust_ffi_type[7..].to_owned();
-	let funcs_name = type_name.clone() + "Funcs";
-	let funcs_struct = find_funcs_struct(&funcs_name, structs);
-
-	f.write_fmt(format_args!("pub {} {{\n", &type_name[2..]))?;
-	f.write_fmt(format_args!("    funcs: *const {},\n", funcs_struct.name))?;
-	f.write_fmt(format_args!("    obj: *const {},\n", type_name))?;
-	f.write_all(b"}\n\n")?;
-
-	f.write_fmt(format_args!("impl {} {{\n", &type_name[2..]))?;
-
-	for entry in &funcs_struct.entries {
-		match entry {
-			&StructEntry::FunctionPtr(ref func_ptr) => {
-				f.write_fmt(format_args!("    pub fn {}(", func_ptr.name))?;
-				func_ptr.write_func_def(f, |index, arg| {
-					if index == 0 {
-						("&mut self".to_owned(), "".to_owned())
-					} else {
-						(arg.name.to_owned(), remap_rust_type(&arg))
-					}
-				})?;
-
-                f.write_all(b" {\n")?;
-                f.write_all(b"        unsafe {\n")?;
-				f.write_fmt(format_args!("            ((*self.funcs).{})(", func_ptr.name))?;
-
-				let arg_count = func_ptr.function_args.len();
-
-				func_ptr.write_func_def(f, |index, arg| {
-				    if index == arg_count {
-				        return ("".to_owned(), "".to_owned());
-                    }
-
-					if index == 0 {
-						("self.obj".to_owned(), "".to_owned())
-					} else {
-					    if let Some(access) = arg.access_type {
-						    (format!("{}{}", arg.name.to_owned(), access), "".to_owned())
-                        } else {
-						    (arg.name.to_owned(), "".to_owned())
-                        }
-					}
-				})?;
-				                         
-                f.write_all(b"\n")?;
-                f.write_all(b"        }\n")?;
-                f.write_all(b"    }\n\n")?;
-			}
-
-			_ => (),
-		}
-	}
-
-	f.write_all(b"}\n\n")?;
-
-	Ok(())
-}
-
-///
-/// This functions generates "Real" Rust bindings (using the FFI wrapper)
-///
-/// It's done in this way:
-///
-/// 1. Find the the Wrui struct.
-/// 2. Find a name_create function that returns GUX* inside the UI struct
-/// 3. Find name_funcs that maps to 2.
-/// 4. Generate struct X which uses functions in name_funcs and wraps GUX object
-/// 5. If struct has GUWidget* base also generate Widget trait impl
-///
-fn generate_rust_binding(filename: &str, structs: &Vec<Struct>) -> io::Result<()> {
-	let mut f = File::create(filename)?;
-
-	let wrui_struct = structs.iter().find(|&e| { e.name == "Wrui" } ).unwrap();
-
-	for entry in &wrui_struct.entries {
-		match entry {
-			&StructEntry::FunctionPtr(ref func_ptr) => {
-				if !is_create_func(func_ptr) {
-					continue;
-				}
-
-				generate_struct(&mut f, func_ptr, structs)?;
-			}
-
-			_ => (),
-		}
-	}
-
-	Ok(())
-}
 
 fn main() {
     // Acquire an instance of `Clang`
@@ -220,11 +46,11 @@ fn main() {
         panic!("Unable to generate {} err {:?}", RUST_FFI_FILE, err);
     }
 
-    if let Err(err) = generate_traits(TRAITS_FILE, &structs) {
-        panic!("Unable to generate {} err {:?}", RUST_FFI_FILE, err);
+    if let Err(err) = rust_traits_gen::generate_traits(TRAITS_FILE, &structs) {
+        panic!("Unable to generate {} err {:?}", TRAITS_FILE, err);
     }
 
-    if let Err(err) = generate_rust_binding(WIDGETS_FILE, &structs) {
-        panic!("Unable to generate {} err {:?}", RUST_FFI_FILE, err);
+    if let Err(err) = rust_widgets_gen::generate_rust_binding(WIDGETS_FILE, &structs) {
+        panic!("Unable to generate {} err {:?}", WIDGETS_FILE, err);
     }
 }

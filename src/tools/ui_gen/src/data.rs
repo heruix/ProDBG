@@ -77,13 +77,12 @@ fn map_c_type_to_rust(name: &String) -> (String, String, Option<&'static str>) {
 
     if let Some(prim_type) = get_primitive_type(&s) {
         if prim_type == "*const c_char" {
-            return (prim_type.to_owned(), "&str".to_owned(), Some(".as_ptr()"));
+            return (prim_type.to_owned(), "str".to_owned(), Some(".as_ptr()"));
         } else {
             return (prim_type.to_owned(), prim_type.to_owned(), None);
         }
     }
 
-    println!("type {}", s);
     // found pointer, return as is
     if s.find("*").is_some() {
         if s.find("GU").is_some() {
@@ -161,8 +160,6 @@ fn generate_function_ptr(var: &clang::Entity) -> StructEntry {
             rust_type: types.1,
             access_type: types.2,
         };
-
-        println!("param {:?}", param);
 
         func_ptr.function_args.push(param);
     }
