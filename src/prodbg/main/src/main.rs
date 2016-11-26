@@ -24,10 +24,28 @@ fn main() {
     let main_window = ui.main_window_create();
 
     let button = ui.push_button_create(); 
+    let button2 = ui.push_button_create(); 
+    let button3 = ui.push_button_create(); 
+
     button.set_title("Foo!");
     button.set_size(150, 150);
 
+    button2.set_title("Foo 2!");
+    button2.set_size(150, 150);
+
+    button3.set_title("Foo 3!");
+    button3.set_size(150, 150);
+
     connect_released!(&button, &t, usize, callback);
+
+    let dock1 = ui.dock_widget_create();
+    let dock2 = ui.dock_widget_create();
+
+    dock1.set_widget(&button2);
+    dock2.set_widget(&button3);
+
+    main_window.add_dock_widget(1, &dock1);
+    main_window.add_dock_widget(1, &dock2);
 
     main_window.set_central_widget(&button);
     main_window.set_window_title("ProDBG");
