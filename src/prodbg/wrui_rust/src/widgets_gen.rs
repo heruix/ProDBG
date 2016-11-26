@@ -94,6 +94,13 @@ impl MainWindow {
         }
     }
 
+    pub fn set_window_title(&self, title: &str) {
+        let str_in_0 = CString::new(title).unwrap();
+        unsafe {
+            ((*self.funcs).set_window_title)(self.obj, str_in_0.as_ptr())
+        }
+    }
+
     #[inline]
     pub fn get_obj(&self) -> *const GUMainWindow { self.obj }
 }

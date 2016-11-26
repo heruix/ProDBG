@@ -9,6 +9,14 @@ pub trait Widget {
         }
     }
 
+    fn show(&self) {
+        unsafe {
+            let obj = self.get_obj();
+            let funcs = self.get_funcs();
+            ((*funcs).show)(obj)
+        }
+    }
+
     fn get_obj(&self) -> *const ffi_gen::GUWidget;
     fn get_funcs(&self) -> *const ffi_gen::GUWidgetFuncs;
 }

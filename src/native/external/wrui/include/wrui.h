@@ -43,6 +43,7 @@ typedef struct GUObjectFuncs {
 
 typedef struct GUWidgetFuncs {
 	void (*set_size)(struct GUWidget* widget, int width, int height);
+	void (*show)(struct GUWidget* widget);
 } GUWidgetFuncs;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +57,7 @@ typedef struct GUWindowFuncs {
 typedef struct GUMainWindowFuncs {
 	void (*set_central_widget)(struct GUMainWindow* win, struct GUWidget* widget);
 	void (*add_dock_widget)(struct GUMainWindow* win, uint32_t area, struct GUDockWidget* widget);
+	void (*set_window_title)(struct GUMainWindow* win, const char* title);
 } GUMainWindowFuncs;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

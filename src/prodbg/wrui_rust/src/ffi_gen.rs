@@ -15,6 +15,7 @@ pub struct GUObjectFuncs {
 #[repr(C)]
 pub struct GUWidgetFuncs {
     pub set_size: extern "C" fn(widget: *const GUWidget, width: i32, height: i32),
+    pub show: extern "C" fn(widget: *const GUWidget),
 }
 
 #[repr(C)]
@@ -26,6 +27,7 @@ pub struct GUWindowFuncs {
 pub struct GUMainWindowFuncs {
     pub set_central_widget: extern "C" fn(win: *const GUMainWindow, widget: *const GUWidget),
     pub add_dock_widget: extern "C" fn(win: *const GUMainWindow, area: u32, widget: *const GUDockWidget),
+    pub set_window_title: extern "C" fn(win: *const GUMainWindow, title: *const c_char),
 }
 
 #[repr(C)]

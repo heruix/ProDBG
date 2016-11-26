@@ -17,8 +17,17 @@ static void widget_set_size(struct GUWidget* widget, int width, int height) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+static void widget_show(struct GUWidget* widget) {
+	QObject* q_obj = (QObject*) widget->object->p;
+	QWidget* q_widget = static_cast<QWidget*>(q_obj);
+	q_widget->show();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 static struct GUWidgetFuncs s_widgetFuncs = {
 	widget_set_size,
+	widget_show,
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +72,7 @@ static GUApplication* application_create() {
 
 static GUPushButton* push_button_create() {
 	QPushButton* qt_button = new QPushButton(0, 0);
-	qt_button->show();
+	//qt_button->show();
 
 	printf("Push button ptr %p\n", (void*)qt_button);
 

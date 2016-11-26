@@ -37,8 +37,16 @@ static void set_central_widget(GUMainWindow* win, struct GUWidget* widget) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+static void set_window_title(GUMainWindow* win, const char* title) {
+	QMainWindow* qt_main_win = (QMainWindow*)win->base->object->p;
+	qt_main_win->setWindowTitle(QString(title));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct GUMainWindowFuncs g_mainWindowFuncs = {
 	set_central_widget,
 	add_dock_widget,
+	set_window_title
 };
 

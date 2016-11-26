@@ -21,11 +21,17 @@ fn main() {
 
     let app = ui.application_create();
 
+    let main_window = ui.main_window_create();
+
     let button = ui.push_button_create(); 
     button.set_title("Foo!");
     button.set_size(150, 150);
 
     connect_released!(&button, &t, usize, callback);
+
+    main_window.set_central_widget(&button);
+    main_window.set_window_title("ProDBG");
+    main_window.show();
 
     app.run();
 
