@@ -10,15 +10,12 @@ extern GUDockWidgetFuncs g_dockWidgetFuncs;
 struct GUDockWidget* dock_widget_create() {
 	QDockWidget* qdock = nullptr;
 
-	/*
-	if (parent)
-		qdock = new QDockWidget((QWidget*)parent->object->p);
-	else
-	*/
-		qdock = new QDockWidget(nullptr);
+	qdock = new QDockWidget(nullptr);
 
 	GUDockWidget* t = new GUDockWidget;
 	t->privd = 0;
+
+	t->base = new GUWidget;
 
 	widget_setup(t->base, (void*) qdock);
 
