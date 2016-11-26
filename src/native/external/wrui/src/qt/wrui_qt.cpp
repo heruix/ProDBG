@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QPushButton>
 #include <QMainWindow>
+#include <QTabWidget>
 
 extern struct GUDockWidget* dock_widget_create();
 
@@ -89,6 +90,31 @@ static GUPushButton* push_button_create() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+static GUTabWidget* tab_widget_create() {
+	QTabWidget* qt_ctl = new QTabWidget();
+	GUTabWidget* ctrl = new GUTabWidget;
+	ctrl->base = new GUWidget;
+	widget_setup(ctrl->base, (void*) static_cast<QObject*>(qt_ctl));
+
+	return ctrl;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void tab_widget_clear(struct GUTabWidget* widget) {
+	QObject* q_obj = (QObject*) widget->base->object->p;
+	QTabWidget* q_widget = static_cast<QTabWidget*>(q_obj);
+	q_widget->clear();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static struct GUTabWidgetFuncs s_tabWidgetFuncs = {
+	tab_widget_clear,
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 static GUMainWindow* main_window_create() {
 	QMainWindow* qt_win = new QMainWindow();
 	qt_win->setWindowTitle("none");
@@ -118,6 +144,7 @@ static Wrui s_wrui = {
 	push_button_create,
 	main_window_create,
 	dock_widget_create,
+	tab_widget_create,
 
 	// funcs
 
@@ -126,7 +153,8 @@ static Wrui s_wrui = {
 	&g_mainWindowFuncs,
 	&s_pushButtonFuncs,
 	&s_appFuncs,
-	&g_dockWidgetFuncs	
+	&g_dockWidgetFuncs,
+	&s_tabWidgetFuncs,	
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

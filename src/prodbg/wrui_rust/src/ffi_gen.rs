@@ -31,6 +31,11 @@ pub struct GUMainWindowFuncs {
 }
 
 #[repr(C)]
+pub struct GUTabWidgetFuncs {
+    pub clear: extern "C" fn(tab: *const GUTabWidget),
+}
+
+#[repr(C)]
 pub struct GUPushButtonFuncs {
     pub set_title: extern "C" fn(button: *const GUPushButton, text: *const c_char),
 }
@@ -63,6 +68,11 @@ pub struct GUWindow {
 }
 
 #[repr(C)]
+pub struct GUTabWidget {
+    pub base: *const GUWidget,
+}
+
+#[repr(C)]
 pub struct GUPushButton {
     pub base: *const GUWidget,
 }
@@ -85,12 +95,14 @@ pub struct Wrui {
     pub push_button_create: extern "C" fn() -> *const GUPushButton,
     pub main_window_create: extern "C" fn() -> *const GUMainWindow,
     pub dock_widget_create: extern "C" fn() -> *const GUDockWidget,
+    pub tab_widget_create: extern "C" fn() -> *const GUTabWidget,
     pub widget_funcs: *const GUWidgetFuncs,
     pub window_funcs: *const GUWindowFuncs,
     pub main_window_funcs: *const GUMainWindowFuncs,
     pub push_button_funcs: *const GUPushButtonFuncs,
     pub application_funcs: *const GUApplicationFuncs,
     pub dock_widget_funcs: *const GUDockWidgetFuncs,
+    pub tab_widget_funcs: *const GUTabWidgetFuncs,
 }
 
 extern "C" {

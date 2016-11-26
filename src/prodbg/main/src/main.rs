@@ -47,7 +47,9 @@ fn main() {
     main_window.add_dock_widget(1, &dock1);
     main_window.add_dock_widget(1, &dock2);
 
-    main_window.set_central_widget(&button);
+    let tabs = ui.tab_widget_create();
+
+    main_window.set_central_widget(&tabs);
     main_window.set_window_title("ProDBG");
     main_window.show();
 

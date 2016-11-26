@@ -9,6 +9,7 @@ extern "C" {
 #include "dock_widget.h"
 
 struct GUWidget;
+struct GUTabWidget;
 struct GUPushButton;
 struct GUWindow;
 struct GUMainWindow;
@@ -62,6 +63,12 @@ typedef struct GUMainWindowFuncs {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+typedef struct GUTabWidgetFuncs {
+	void (*clear)(struct GUTabWidget* tab);
+} GUTabWidgetFuncs;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 typedef struct GUPushButtonFuncs {
 	void (*set_title)(struct GUPushButton* button, const char* text); 
 } GUPushButtonFuncs;
@@ -95,6 +102,7 @@ typedef struct GUDockWidget {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 GU_INTERNAL_WIDGET_TYPE(GUWindow);
+GU_INTERNAL_WIDGET_TYPE(GUTabWidget);
 GU_INTERNAL_WIDGET_TYPE(GUPushButton);
 GU_INTERNAL_WIDGET_TYPE(GUMainWindow);
 
@@ -114,6 +122,7 @@ typedef struct Wrui {
 	GUPushButton* (*push_button_create)();
 	GUMainWindow* (*main_window_create)();
 	GUDockWidget* (*dock_widget_create)();
+	GUTabWidget* (*tab_widget_create)();
 
 	GUWidgetFuncs* widget_funcs;
 	GUWindowFuncs* window_funcs;
@@ -121,6 +130,7 @@ typedef struct Wrui {
 	GUPushButtonFuncs* push_button_funcs;
 	GUApplicationFuncs* application_funcs;
 	GUDockWidgetFuncs* dock_widget_funcs; 
+	GUTabWidgetFuncs* tab_widget_funcs; 
 
 } Wrui;
 

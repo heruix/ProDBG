@@ -64,4 +64,14 @@ impl Ui {
         }
     }
 
+    pub fn tab_widget_create(&self) -> TabWidget {
+        unsafe {
+            TabWidget {
+                widget_funcs: (*self.wrui).widget_funcs,
+                funcs: (*self.wrui).tab_widget_funcs,
+                obj: ((*self.wrui).tab_widget_create)()
+           }
+        }
+    }
+
 }

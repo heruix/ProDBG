@@ -152,3 +152,29 @@ impl Widget for DockWidget {
    }
 }
 
+pub struct TabWidget {
+    pub widget_funcs: *const GUWidgetFuncs,
+    pub funcs: *const GUTabWidgetFuncs,
+    pub obj: *const GUTabWidget,
+}
+
+impl TabWidget {
+    pub fn clear(&self) {
+        unsafe {
+            ((*self.funcs).clear)(self.obj)
+        }
+    }
+
+    #[inline]
+    pub fn get_obj(&self) -> *const GUTabWidget { self.obj }
+}
+
+impl Widget for TabWidget {
+   fn get_obj(&self) -> *const GUWidget {
+       unsafe { (*self.obj).base }
+   }
+   fn get_funcs(&self) -> *const GUWidgetFuncs {
+       self.widget_funcs
+   }
+}
+
