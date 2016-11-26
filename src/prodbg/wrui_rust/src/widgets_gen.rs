@@ -39,6 +39,15 @@ impl Window {
     pub fn get_obj(&self) -> *const GUWindow { self.obj }
 }
 
+impl Widget for Window {
+   fn get_obj(&self) -> *const GUWidget {
+       unsafe { (*self.obj).base }
+   }
+   fn get_funcs(&self) -> *const GUWidgetFuncs {
+       self.widget_funcs
+   }
+}
+
 pub struct PushButton {
     pub widget_funcs: *const GUWidgetFuncs,
     pub funcs: *const GUPushButtonFuncs,
@@ -55,6 +64,15 @@ impl PushButton {
 
     #[inline]
     pub fn get_obj(&self) -> *const GUPushButton { self.obj }
+}
+
+impl Widget for PushButton {
+   fn get_obj(&self) -> *const GUWidget {
+       unsafe { (*self.obj).base }
+   }
+   fn get_funcs(&self) -> *const GUWidgetFuncs {
+       self.widget_funcs
+   }
 }
 
 pub struct MainWindow {
@@ -78,6 +96,15 @@ impl MainWindow {
 
     #[inline]
     pub fn get_obj(&self) -> *const GUMainWindow { self.obj }
+}
+
+impl Widget for MainWindow {
+   fn get_obj(&self) -> *const GUWidget {
+       unsafe { (*self.obj).base }
+   }
+   fn get_funcs(&self) -> *const GUWidgetFuncs {
+       self.widget_funcs
+   }
 }
 
 pub struct DockWidget {
@@ -117,3 +144,4 @@ impl Widget for DockWidget {
        self.widget_funcs
    }
 }
+

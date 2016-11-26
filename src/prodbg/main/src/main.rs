@@ -6,6 +6,7 @@ extern crate project;
 extern crate wrui;
 
 use wrui::ui_gen::Ui;
+use wrui::traits_gen::Widget;
 
 fn main() {
 
@@ -15,6 +16,7 @@ fn main() {
 
     let button = ui.push_button_create(); 
     button.set_title("Foo!");
+    button.set_size(150, 150);
 
     app.run();
 

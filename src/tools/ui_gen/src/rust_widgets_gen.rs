@@ -19,7 +19,7 @@ fn is_create_func(func: &FuncPtr) -> bool {
 ///
 ///
 ///
-fn find_funcs_struct<'a>(name: &str, structs: &'a Vec<Struct>) -> &'a Struct {
+fn find_struct<'a>(name: &str, structs: &'a Vec<Struct>) -> &'a Struct {
 	structs.iter().find(|&e| { e.name == name }).unwrap()
 }
 
@@ -94,12 +94,31 @@ fn generate_function_entry(f: &mut File, func_ptr: &FuncPtr) -> io::Result<()> {
 }
 
 ///
+/// Check if type has widget base member and we will imlpment Widget trait for it
+///
+fn has_widget_base(s: &Struct) -> bool {
+	for entry in &s.entries {
+		match entry {
+			&StructEntry::Var(ref var) => { 
+			    if var.rust_type == "Widget" && var.name == "base" {
+			        return true;
+                }
+            }
+			_ => (),
+		}
+	}
+
+	false
+}
+
+///
 /// 3. Find name_funcs that maps to 2.
 ///
 fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::Result<()> {
 	let type_name = func.return_val.as_ref().unwrap().rust_ffi_type[7..].to_owned();
 	let funcs_name = type_name.clone() + "Funcs";
-	let funcs_struct = find_funcs_struct(&funcs_name, structs);
+	let funcs_struct = find_struct(&funcs_name, structs);
+	let data_struct = find_struct(&type_name, structs);
 
 	f.write_fmt(format_args!("pub struct {} {{\n", &type_name[2..]))?;
 	f.write_fmt(format_args!("    pub widget_funcs: *const {},\n", "GUWidgetFuncs"))?;
@@ -125,7 +144,7 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 
 	// For widgets we implemnt the Widget Trait also
 
-	if type_name.find("Widget").is_some() {
+	if has_widget_base(data_struct) {
 	    f.write_fmt(format_args!("impl Widget for {} {{\n", &type_name[2..]))?;
 	    f.write_all(b"   fn get_obj(&self) -> *const GUWidget {\n")?;
 	    f.write_all(b"       unsafe { (*self.obj).base }\n")?;
@@ -133,7 +152,7 @@ fn generate_struct(f: &mut File, func: &FuncPtr, structs: &Vec<Struct>) -> io::R
 	    f.write_all(b"   fn get_funcs(&self) -> *const GUWidgetFuncs {\n")?;
 	    f.write_all(b"       self.widget_funcs\n")?;
 	    f.write_all(b"   }\n")?;
-	    f.write_all(b"}\n")?;
+	    f.write_all(b"}\n\n")?;
     }
 
 	Ok(())
