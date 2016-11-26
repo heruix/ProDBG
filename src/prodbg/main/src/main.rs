@@ -5,8 +5,8 @@ extern crate settings;
 extern crate project;
 extern crate wrui;
 
-use wrui::ui_gen::Ui;
-use wrui::traits_gen::Widget;
+use wrui::Ui;
+use wrui::Widget;
 
 fn main() {
 
