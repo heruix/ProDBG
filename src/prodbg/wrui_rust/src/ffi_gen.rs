@@ -41,6 +41,7 @@ pub struct GUApplicationFuncs {
 #[repr(C)]
 pub struct GUObject {
     pub p: *const c_void,
+    pub object_funcs: *const GUObjectFuncs,
 }
 
 #[repr(C)]
@@ -82,7 +83,6 @@ pub struct Wrui {
     pub push_button_create: extern "C" fn() -> *const GUPushButton,
     pub main_window_create: extern "C" fn() -> *const GUMainWindow,
     pub dock_widget_create: extern "C" fn() -> *const GUDockWidget,
-    pub object_funcs: *const GUObjectFuncs,
     pub widget_funcs: *const GUWidgetFuncs,
     pub window_funcs: *const GUWindowFuncs,
     pub main_window_funcs: *const GUMainWindowFuncs,

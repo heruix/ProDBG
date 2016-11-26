@@ -74,6 +74,7 @@ typedef struct GUApplicationFuncs {
 
 typedef struct GUObject {
 	void* p;
+	GUObjectFuncs* object_funcs;
 } GUObject;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +113,6 @@ typedef struct Wrui {
 	GUMainWindow* (*main_window_create)();
 	GUDockWidget* (*dock_widget_create)();
 
-	GUObjectFuncs* object_funcs;
 	GUWidgetFuncs* widget_funcs;
 	GUWindowFuncs* window_funcs;
 	GUMainWindowFuncs* main_window_funcs;

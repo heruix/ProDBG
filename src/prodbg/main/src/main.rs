@@ -3,12 +3,19 @@ extern crate prodbg_api;
 extern crate imgui_sys;
 extern crate settings;
 extern crate project;
+
+#[macro_use]
 extern crate wrui;
 
 use wrui::Ui;
 use wrui::Widget;
 
+fn callback(_t: &mut usize) {
+    println!("callback");
+}
+
 fn main() {
+    let t: usize = 0;
 
     let ui = Ui::new_default();
 
@@ -17,6 +24,8 @@ fn main() {
     let button = ui.push_button_create(); 
     button.set_title("Foo!");
     button.set_size(150, 150);
+
+    connect_released!(&button, &t, usize, callback);
 
     app.run();
 
